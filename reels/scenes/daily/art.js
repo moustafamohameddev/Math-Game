@@ -433,6 +433,113 @@
     };
   };
 
+  // ---------- arch: a mihrab with a hanging lamp ----------
+  P.arch = (g, th) => {
+    const archPts = (w, top) => {
+      const pts = [[360 - w, 720], [360 - w, 600]];
+      for (let i = 1; i <= 12; i++) { const u = i / 12; pts.push([360 - w + w * Math.sin((u * Math.PI) / 2), 600 - (600 - top) * Math.pow(u, 1.15)]); }
+      for (let i = 11; i >= 0; i--) { const u = i / 12; pts.push([360 + w - w * Math.sin((u * Math.PI) / 2), 600 - (600 - top) * Math.pow(u, 1.15)]); }
+      pts.push([360 + w, 720]);
+      return pts;
+    };
+    const ground = groundLine(g, th, 141);
+    svg('path', { d: smoothPath(archPts(58, 505)) + ' Z', fill: th.soft, opacity: 0.85 }, g);
+    const halo = svg('circle', { cx: 360, cy: 590, r: 60, fill: th.accent, opacity: 0, style: 'filter:blur(20px)' }, g);
+    const chain = stroke(g, [[360, 515], [360, 560]], th, { 'stroke-width': 2 }, 142, { amp: 0.2 });
+    const lamp = svg('g', { opacity: 0 }, g);
+    svg('path', { d: 'M346,560 h28 l8,10 Q376,600 360,606 Q344,600 338,570Z', fill: th.accent, 'fill-opacity': 0.25, stroke: th.ink, 'stroke-width': 2.2, 'stroke-linejoin': 'round' }, lamp);
+    const flame = svg('path', { d: 'M360,572 Q368,584 360,596 Q352,584 360,572Z', fill: th.accent, opacity: 0 }, lamp);
+    const outer = stroke(g, archPts(80, 482), th, { 'stroke-width': 3.4 }, 143, { amp: 0.6, step: 18 });
+    const inner = stroke(g, archPts(58, 505), th, { 'stroke-width': 2.4 }, 144, { amp: 0.5, step: 18 });
+    const rug = svg('rect', { x: 318, y: 710, width: 84, height: 9, rx: 2, fill: th.accent, opacity: 0 }, g);
+    return {
+      render(l, t) {
+        [ground, outer, inner, chain].forEach((p) => boil(p, t));
+        reveal(ground, ease.inOutCubic(prog(l, 0, 0.45)));
+        reveal(outer, ease.inOutQuad(prog(l, 0.1, 0.85)));
+        reveal(inner, ease.inOutQuad(prog(l, 0.3, 1.0)));
+        reveal(chain, prog(l, 0.8, 0.95));
+        lamp.setAttribute('opacity', prog(l, 0.9, 1.1).toFixed(3));
+        const f = ease.outQuad(prog(l, 1.1, 1.4)) * (0.85 + 0.15 * Math.sin(t * 6));
+        flame.setAttribute('opacity', f.toFixed(3));
+        halo.setAttribute('opacity', (0.5 * f).toFixed(3));
+        rug.setAttribute('opacity', (0.75 * prog(l, 1.0, 1.3)).toFixed(3));
+        lamp.setAttribute('transform', `rotate(${(2.5 * Math.sin(t * 1.4)).toFixed(2)} 360 515)`);
+        chain.setAttribute('transform', `rotate(${(2.5 * Math.sin(t * 1.4)).toFixed(2)} 360 515)`);
+      },
+    };
+  };
+
+  // ---------- path: a road leading to a light on the horizon ----------
+  P.path = (g, th) => {
+    const horizon = stroke(g, [[110, 560], [360, 561], [610, 560]], th, { 'stroke-width': 2.2 }, 151, { amp: 0.5, step: 40 });
+    const halo = svg('circle', { cx: 360, cy: 552, r: 70, fill: th.accent, opacity: 0, style: 'filter:blur(22px)' }, g);
+    const sun = svg('circle', { cx: 360, cy: 556, r: 0, fill: th.accent }, g);
+    const bend = (u) => 34 * Math.sin(u * Math.PI * 1.2) * (1 - u);
+    const curve = (side) => R.curve((u) => [360 + side * lerp(9, 150, Math.pow(u, 1.4)) + bend(u), lerp(561, 720, u)], 24);
+    svg('rect', { x: 110, y: 561, width: 500, height: 159, fill: th.leaf, opacity: 0.32 }, g);
+    svg('path', { d: 'M' + [...curve(-1), ...curve(1).reverse()].map((p) => p.map((v) => v.toFixed(1)).join(',')).join(' L') + 'Z', fill: th.soft }, g);
+    const left = stroke(g, curve(-1), th, { 'stroke-width': 3 }, 152, { amp: 0.6 });
+    const right = stroke(g, curve(1), th, { 'stroke-width': 3 }, 153, { amp: 0.6 });
+    const mid = svg('path', { d: smoothPath(R.curve((u) => [360 + bend(u), lerp(562, 720, u)], 24)), fill: 'none', stroke: th.accent, 'stroke-width': 4, 'stroke-dasharray': '12 12', 'stroke-linecap': 'round', opacity: 0 }, g);
+    [[205, 548, 26], [250, 552, 18], [500, 549, 24], [535, 553, 16]].forEach(([x, y, r]) => svg('path', { d: `M${x - r},${y + 12} Q${x},${y - r} ${x + r},${y + 12}Z`, fill: th.leaf, stroke: th.ink, 'stroke-width': 2, opacity: 0.9 }, g));
+    const ground = groundLine(g, th, 154, 90, 630);
+    g.appendChild(halo); g.appendChild(sun);
+    const dot = glowDot(g, th, 9);
+    return {
+      render(l, t) {
+        [horizon, left, right, ground].forEach((p) => boil(p, t));
+        reveal(ground, ease.inOutCubic(prog(l, 0, 0.4)));
+        reveal(horizon, ease.inOutCubic(prog(l, 0.1, 0.5)));
+        reveal(left, ease.inOutQuad(prog(l, 0.25, 0.9))); reveal(right, ease.inOutQuad(prog(l, 0.3, 0.95)));
+        mid.setAttribute('opacity', prog(l, 0.9, 1.1).toFixed(3));
+        mid.style.strokeDashoffset = String(t * 30);
+        const s = ease.outBack(prog(l, 1.0, 1.4));
+        sun.setAttribute('r', (24 * s).toFixed(2));
+        sun.setAttribute('cy', (560 - 18 * ease.outCubic(prog(l, 1.0, 2.2))).toFixed(1));
+        halo.setAttribute('cy', sun.getAttribute('cy'));
+        halo.setAttribute('opacity', (0.55 * prog(l, 1.0, 1.5) * (0.85 + 0.15 * Math.sin(t * 2))).toFixed(3));
+        const w = clamp((l - 1.2) / 3.5), u = 1 - ease.inOutQuad(w);
+        dot.setAttribute('transform', `translate(${(360 + bend(u)).toFixed(1)},${lerp(572, 708, u).toFixed(1)}) scale(${(ease.outBack(prog(l, 0.9, 1.2)) * lerp(0.5, 1, u)).toFixed(3)})`);
+      },
+    };
+  };
+
+  // ---------- scale: a good deed tips the balance ----------
+  P.scale = (g, th) => {
+    const ground = groundLine(g, th, 161);
+    const post = stroke(g, [[360, 712], [360, 520]], th, { 'stroke-width': 4 }, 162, { amp: 0.4 });
+    svg('path', { d: 'M332,720 L360,700 L388,720Z', fill: th.soft, stroke: th.ink, 'stroke-width': 2.6, 'stroke-linejoin': 'round' }, g);
+    const beamG = svg('g', {}, g);
+    svg('line', { x1: 268, y1: 524, x2: 452, y2: 524, stroke: th.ink, 'stroke-width': 4, 'stroke-linecap': 'round' }, beamG);
+    svg('circle', { cx: 360, cy: 524, r: 7, fill: th.accent, stroke: th.ink, 'stroke-width': 2 }, g);
+    const pan = (x) => {
+      const pg = svg('g', {}, g);
+      svg('path', { d: `M${x},0 L${x - 34},62 M${x},0 L${x + 34},62`, stroke: th.ink, 'stroke-width': 1.8 }, pg);
+      svg('path', { d: `M${x - 42},62 Q${x},92 ${x + 42},62Z`, fill: th.soft, stroke: th.ink, 'stroke-width': 2.6, 'stroke-linejoin': 'round' }, pg);
+      return pg;
+    };
+    const pL = pan(268), pR = pan(452);
+    const good = svg('g', { opacity: 0 }, pR);
+    svg('circle', { cx: 452, cy: 46, r: 22, fill: th.accent, opacity: 0.35, style: 'filter:blur(8px)' }, good);
+    svg('path', { d: `M452,${30}Q452,46 468,46Q452,46 452,62Q452,46 436,46Q452,46 452,30Z`, fill: th.accent }, good);
+    return {
+      render(l, t) {
+        [ground, post].forEach((p) => boil(p, t));
+        reveal(ground, ease.inOutCubic(prog(l, 0, 0.4)));
+        reveal(post, ease.outQuad(prog(l, 0.15, 0.5)));
+        const show = ease.outQuad(prog(l, 0.4, 0.7));
+        [beamG, pL, pR].forEach((n) => n.setAttribute('opacity', show.toFixed(3)));
+        good.setAttribute('opacity', ease.outQuad(prog(l, 1.1, 1.4)).toFixed(3));
+        const tip = -7 + 17 * ease.outBack(prog(l, 1.35, 2.0)) + 0.8 * Math.sin(t * 1.8);
+        const a = (tip * Math.PI) / 180;
+        beamG.setAttribute('transform', `rotate(${tip.toFixed(2)} 360 524)`);
+        pL.setAttribute('transform', `translate(${(-92 * (Math.cos(a) - 1)).toFixed(2)},${(524 - 92 * Math.sin(a)).toFixed(2)})`);
+        pR.setAttribute('transform', `translate(${(92 * (Math.cos(a) - 1)).toFixed(2)},${(524 + 92 * Math.sin(a)).toFixed(2)})`);
+      },
+    };
+  };
+
   // ---------- sounds that belong to each prop ----------
   const SFX_OF = {
     hourglass: (t0, d) => [{ t: t0 + 0.9, type: 'rain', dur: Math.min(d, 6) - 0.9, gain: -44, density: 4, dropGain: -36, low: 2500 }],
@@ -449,6 +556,9 @@
     lantern: (t0) => [{ t: t0 + 0.7, type: 'pop', gain: -18, freq: 900 }, { t: t0 + 0.75, type: 'twinkle', dur: 0.5, gain: -22 }],
     book: (t0) => [{ t: t0 + 0.15, type: 'whoosh', dur: 0.3, rise: 0.12, gain: -16 }, { t: t0 + 0.8, type: 'twinkle', dur: 0.6, gain: -20 }],
     tree: (t0) => [0, 1, 2, 3, 4].map((i) => ({ t: t0 + 0.6 + i * 0.12, type: 'pop', gain: -20, freq: 400 + i * 80 })),
+    arch: (t0) => [{ t: t0 + 1.1, type: 'pop', gain: -18, freq: 820 }, { t: t0 + 1.15, type: 'twinkle', dur: 0.5, gain: -22 }],
+    path: (t0) => [{ t: t0 + 1.0, type: 'swell', dur: 0.6, rise: 0.35, gain: -14, low: 80 }],
+    scale: (t0) => [{ t: t0 + 1.1, type: 'twinkle', dur: 0.35, gain: -20 }, { t: t0 + 1.4, type: 'whoosh', dur: 0.4, rise: 0.15, gain: -16 }, { t: t0 + 1.75, type: 'tick', gain: -8, freq: 1500 }],
     orbit: (t0) => [{ t: t0, type: 'swell', dur: 0.7, rise: 0.3, gain: -12, low: 80 }, { t: t0 + 0.6, type: 'twinkle', dur: 0.6, gain: -20 }],
   };
 

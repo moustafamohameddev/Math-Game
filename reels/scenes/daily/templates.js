@@ -16,7 +16,26 @@
     navy: { mode: 'glow', bg: '#060f1f', ink: '#e6e2d8', title: '#fcd525', text: '#f8f9f3', sub: '#8c96ac', en: '#8991a6', ref: '#757e92',
       accent: '#fcd525', sand: '#f2c832', soft: '#16213a', leaf: '#8fa582', petal: '#fcd525', center: '#f6f1e2', moon: '#f8f9f3', panel: '#111b30', door: '#1d2a47',
       page: '#1d2a47', rain: '#8a9ab5', cloud: '#6b7690', cloudFill: '#18233b', rock: '#8792ac', stem: '#eef0e8', trunk: '#aab3c4', dotRing: '#fff3c0', glow: '252,213,37' },
+    olive: { mode: 'glow', bg: '#0e1a15', ink: '#eef0e6', title: '#f2c84b', text: '#f4f6ee', sub: '#8fa396', en: '#93a59a', ref: '#7d8f84',
+      accent: '#f2c84b', sand: '#e8bd3e', soft: '#18291f', leaf: '#9dbb8a', petal: '#f2c84b', center: '#f6f1e2', moon: '#f4f6ee', panel: '#13221a', door: '#1f3428',
+      page: '#1f3428', rain: '#7f988a', cloud: '#a9bcae', cloudFill: 'rgba(230,255,240,.06)', rock: '#9fb1a5', stem: '#eef0e6', trunk: '#b9c7bc', dotRing: '#fff3c0', glow: '242,200,75' },
+    rose: { mode: 'marker', bg: '#fbf5f0', ink: '#3a2420', title: '#4a2a24', text: '#4a2a24', sub: '#8a6f68', en: '#86706a', ref: '#b39d96', hl: '#f6c7b2',
+      accent: '#e8896a', sand: '#e8a27f', soft: '#f1dfd4', leaf: '#a9b48f', petal: '#f2a488', center: '#d9705a', moon: '#e8896a', panel: '#f0dcd0', door: '#d9b29f',
+      page: '#fffaf6', rain: '#b29e97', cloud: '#3a2420', cloudFill: '#f7ece6', rock: '#8a6f68', stem: '#3a2420', trunk: '#6a4a3e', dotRing: '#fff1e8', glow: '232,137,106' },
   };
+
+  /** The account handle shown on every daily video (set `brand` in daily/scripts.js). */
+  function brandMark(stage, y, color, accent, t0) {
+    const name = (global.DAILY && DAILY.brand) || '';
+    if (!name) return { render() {} };
+    const el = html('div', { class: 'brand-mark', dir: 'ltr' }, stage);
+    Object.assign(el.style, { position: 'absolute', left: '0', width: '720px', top: y + 'px', transform: 'translateY(-50%)', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '7px',
+      font: '500 17px Inter, system-ui, sans-serif', letterSpacing: '1.4px', color, zIndex: 4, whiteSpace: 'nowrap' });
+    const dot = html('span', {}, el);
+    Object.assign(dot.style, { width: '7px', height: '7px', borderRadius: '50%', background: accent, display: 'inline-block' });
+    html('span', { text: '@' + name.replace(/^@/, '') }, el);
+    return { render(t) { el.style.opacity = ease.outQuad(prog(t, t0, t0 + 0.4)).toFixed(3); } };
+  }
 
   const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
@@ -88,6 +107,7 @@
       const title = Caption.line({ parent: stage, y: 322, size: 64, font: 'Amiri', weight: 700, color: marker ? th.title : th.title, maxWidth: 560,
         words: [marker ? { w: sc.title, hl: true } : { w: sc.title, glow: `0 0 14px rgba(${th.glow},.5)` }], hlEm: [-0.08, 0.6], hlColor: th.hl, gap: 0.3 });
       const sub = Caption.letters({ parent: stage, text: sc.subtitle || '', y: 377, font: '"Patrick Hand"', size: 22, color: th.sub });
+      const brand = brandMark(stage, 222, th.sub, th.accent, 0.15);
 
       // beats
       const AR = { font: 'Amiri', weight: 700, color: th.text, gap: 0.42, maxWidth: 600, hlEm: [-0.12, 0.58], hlColor: th.hl, hlPadX: 5 };
@@ -128,6 +148,7 @@
             p.s.setAttribute('opacity', (0.35 + 0.65 * (0.5 + 0.5 * Math.sin(t * p.sp * 2.4 + p.ph))).toFixed(3));
           });
           // text
+          brand.render(t);
           title.render(t, { times: [0.36], dur: 0.28, hlTimes: [0.67], hlDur: 0.33 });
           sub.render(t, { start: 0.75, span: 0.2, dur: 0.06 });
           caps.forEach((c) => { c.ar.render(t, c.tA); c.en.render(t, c.tE); });
@@ -203,6 +224,9 @@
         }
         return { s, g, baseG, lines, refEl };
       });
+      const brandEl = html('div', {}, stage);
+      Object.assign(brandEl.style, { position: 'absolute', inset: '0', pointerEvents: 'none' });
+      const brandC = brandMark(brandEl, 1222, '#8b8a80', '#d9bd83', 0.2);
       const bars = html('div', {}, stage);
       Object.assign(bars.style, { position: 'absolute', inset: '0', pointerEvents: 'none' });
       const barEls = Array.from({ length: 10 }, () => { const b = html('div', {}, bars); Object.assign(b.style, { position: 'absolute', left: '0', width: W + 'px', background: '#010002', display: 'none' }); return b; });
@@ -230,6 +254,7 @@
             });
             if (L.refEl) L.refEl.setAttribute('opacity', ease.outQuad(prog(t, duration - 2.6, duration - 2.1)).toFixed(3));
           });
+          brandC.render(t);
           const cur = secs.find((s) => s.trans && t >= s.start && t < s.start + 0.6);
           if (!cur) setBars([]);
           else if (cur.trans === 'blinds') setBars(Calli.blinds(H, 140, 320, Math.max(3, (t - cur.start) * 1100)));
@@ -240,11 +265,11 @@
 
     function sounds() {
       const chords = [[146.83, 220, 293.66], [130.81, 196, 261.63], [110, 164.81, 220, 277.18], [146.83, 220, 293.66]];
-      const ev = [{ t: 0.0, type: 'pad', dur: secs[0].len + 0.1, gain: -26, notes: chords[0] }];
+      const ev = [{ t: 0.0, type: 'pad', dur: secs[0].len + 0.1, gain: -18, notes: chords[0] }];
       secs.slice(1).forEach((s, i) => {
-        ev.push({ t: s.start - 0.08, type: 'whoosh', dur: 0.45, gain: -15 });
-        ev.push({ t: s.start + 0.05, type: 'pad', dur: s.len + (s === last ? 1.4 : 0.1), gain: -26, notes: chords[(i + 1) % chords.length] });
-        s.lines.forEach((_, k) => ev.push({ t: s.start + 0.55 + k * 1.0, type: 'twinkle', dur: 0.3, gain: -24, density: 12 }));
+        ev.push({ t: s.start - 0.08, type: 'whoosh', dur: 0.45, gain: -10 });
+        ev.push({ t: s.start + 0.05, type: 'pad', dur: s.len + (s === last ? 1.4 : 0.1), gain: -18, notes: chords[(i + 1) % chords.length] });
+        s.lines.forEach((_, k) => ev.push({ t: s.start + 0.55 + k * 1.0, type: 'twinkle', dur: 0.3, gain: -16, density: 12 }));
       });
       return ev;
     }
@@ -269,7 +294,7 @@
     const cfg = (sc.template === 'calligraphy' ? calligraphy : illustrated)(sc);
     Reel.run(Object.assign(cfg, {
       id: 'daily-' + sc.id, title: sc.title || sc.base.replace('~', ''), fps: 30,
-      fonts: ['700 40px Amiri', '400 40px Amiri', '400 40px "Amiri Quran"', '400 20px "Patrick Hand"'],
+      fonts: ['700 40px Amiri', '400 40px Amiri', '400 40px "Amiri Quran"', '400 20px "Patrick Hand"', '500 17px Inter'],
     }));
   }
 

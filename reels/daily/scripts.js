@@ -4,22 +4,25 @@
  * (اليوم الأول = أول سكريبت، وبعد آخر سكريبت بيرجع للأول).
  *
  * illustrated (رسومات + كلام):
- *   theme   : 'light' | 'brown' | 'navy'
+ *   theme   : 'light' | 'rose' (فاتح)  —  'brown' | 'navy' | 'olive' (غامق)
  *   title / subtitle
  *   beats   : جمل قصيرة، كل جملة عربي + إنجليزي + رسمة (art)
  *   verse   : الآية أو الذِّكر في الآخر + المرجع
  *   الكلمة بين نجمتين *كده* بتتلوّن/يتعمل لها هايلايت.
- *   الرسومات المتاحة: hourglass flower rain house stairs shield heart moon sun seed door lantern book tree orbit
+ *   الرسومات المتاحة: hourglass flower rain house stairs shield heart moon sun seed door lantern book tree orbit arch path scale
  *
  * calligraphy (خط عربي متحرك):
  *   base     : الجملة الأساسية، و ~ مكان المدّ (الكشيدة)
  *   sections : كل قسم سطرين/ثلاثة بيظهروا تحت الجملة الأساسية
  *   ref      : المصدر
  *
+ * brand: اسم حسابك، بيظهر فوق في كل فيديو (وتحت في فيديوهات الخط).
+ *
  * راجع نص أي آية أو حديث قبل النشر. */
 (function (root) {
   'use strict';
   const DAILY = {
+    brand: 'mostafamohamed6003',   // اسم الحساب اللي بيظهر على كل فيديو
     start: '2026-11-06',
     scripts: [
       { id: 'tawakkul', template: 'illustrated', theme: 'brown', title: 'التوكل', subtitle: 'Tawakkul · trust in Allah',
@@ -259,6 +262,118 @@
           { ar: 'فاعمل لما *يبقى*', en: 'so work for what *remains*', art: 'sun' },
         ],
         verse: { ar: 'وَالْآخِرَةُ *خَيْرٌ* وَأَبْقَىٰ', en: '“And the Hereafter is *better* and more lasting”', ref: 'سورة الأعلى، آية ١٧' } },
+
+      // ───────────── الدفعة التانية ─────────────
+      { id: 'salah', template: 'illustrated', theme: 'olive', title: 'الصلاة', subtitle: 'Salah · your daily rest',
+        beats: [
+          { ar: 'حين *تثقل* الدنيا...', en: 'When the world feels *heavy*...', art: 'rain' },
+          { ar: 'قِف بين يديه *خمس* مرات...', en: 'stand before Him *five* times...', art: 'arch' },
+          { ar: 'وارتَح في *سجودك*', en: 'and find rest in your *sujood*', art: 'arch' },
+        ],
+        verse: { ar: 'وَاسْتَعِينُوا بِالصَّبْرِ *وَالصَّلَاةِ*', en: '“And seek help through patience and *prayer*”', ref: 'سورة البقرة، آية ٤٥' } },
+
+      { id: 'qadar', template: 'illustrated', theme: 'navy', title: 'القَدَر', subtitle: 'Qadar · it was written',
+        beats: [
+          { ar: 'ما *أصابك*...', en: 'What has *reached* you...', art: 'shield' },
+          { ar: 'لم يكن *ليخطئك*...', en: 'was never going to *miss* you...', art: 'shield' },
+          { ar: 'فاطمئن *واهدأ*', en: 'so be at *peace*', art: 'moon' },
+        ],
+        verse: { ar: 'قُل لَّن يُصِيبَنَا إِلَّا مَا *كَتَبَ* اللَّهُ لَنَا', en: '“Say: Nothing will befall us except what Allah has *decreed* for us”', ref: 'سورة التوبة، آية ٥١' } },
+
+      { id: 'tawba', template: 'illustrated', theme: 'rose', title: 'التوبة', subtitle: 'Tawbah · coming back',
+        beats: [
+          { ar: 'مهما *ابتعدت*...', en: 'However *far* you have gone...', art: 'path' },
+          { ar: 'الطريق *إليه* مفتوح...', en: 'the road to *Him* is open...', art: 'path' },
+          { ar: 'عُد *الآن*', en: 'come back *now*', art: 'door' },
+        ],
+        verse: { ar: 'إِنَّ اللَّهَ يُحِبُّ *التَّوَّابِينَ*', en: '“Indeed, Allah loves those who *repent*”', ref: 'سورة البقرة، آية ٢٢٢' } },
+
+      { id: 'sakina', template: 'illustrated', theme: 'olive', title: 'السكينة', subtitle: 'Sakinah · tranquility',
+        beats: [
+          { ar: 'وسط كل هذا *الضجيج*...', en: 'In the middle of all the *noise*...', art: 'rain' },
+          { ar: 'هناك *سكينة*...', en: 'there is a *calm*...', art: 'lantern' },
+          { ar: 'ينزلها الله في *قلبك*', en: 'that Allah sends into your *heart*', art: 'heart' },
+        ],
+        verse: { ar: 'هُوَ الَّذِي أَنزَلَ *السَّكِينَةَ* فِي قُلُوبِ الْمُؤْمِنِينَ', en: '“It is He who sent down *tranquility* into the hearts of the believers”', ref: 'سورة الفتح، آية ٤' } },
+
+      { id: 'maiyya', template: 'illustrated', theme: 'light', title: 'معيّة الله', subtitle: 'Allah is with you',
+        beats: [
+          { ar: 'الصبر ليس *سهلًا*...', en: 'Patience is not *easy*...', art: 'hourglass' },
+          { ar: 'لكنك لست *وحدك*...', en: 'but you are not *alone*...', art: 'hourglass' },
+          { ar: 'الله *معك*', en: 'Allah is *with* you', art: 'sun' },
+        ],
+        verse: { ar: 'إِنَّ اللَّهَ مَعَ *الصَّابِرِينَ*', en: '“Indeed, Allah is with the *patient*”', ref: 'سورة البقرة، آية ١٥٣' } },
+
+      { id: 'kalimatan', template: 'calligraphy', title: 'كلمتان خفيفتان',
+        base: 'كَلِمَتَانِ خَفِيفَتَانِ',
+        sections: [['عَلَى اللِّسَانِ', 'ثَقِيلَتَانِ فِي الْمِيزَانِ'], ['حَبِيبَتَانِ إِلَى الرَّحْمَنِ'], ['سُبْحَانَ اللَّهِ وَبِحَمْدِهِ', 'سُبْحَانَ اللَّهِ الْعَظِيمِ']],
+        ref: 'متفق عليه' },
+
+      { id: 'nur', template: 'illustrated', theme: 'navy', title: 'النور', subtitle: 'Nur · His light',
+        beats: [
+          { ar: 'في كل *ظلمة*...', en: 'In every *darkness*...', art: 'moon' },
+          { ar: 'يكفيك *نوره*...', en: 'His *light* is enough...', art: 'lantern' },
+          { ar: 'ليهديك *الطريق*', en: 'to show you the *way*', art: 'path' },
+        ],
+        verse: { ar: 'اللَّهُ *نُورُ* السَّمَاوَاتِ وَالْأَرْضِ', en: '“Allah is the *Light* of the heavens and the earth”', ref: 'سورة النور، آية ٣٥' } },
+
+      { id: 'hidaya', template: 'illustrated', theme: 'brown', title: 'الهداية', subtitle: 'Hidayah · guidance',
+        beats: [
+          { ar: 'خطوة *صادقة*...', en: 'One *sincere* step...', art: 'stairs' },
+          { ar: 'نحو *الله*...', en: 'towards *Allah*...', art: 'stairs' },
+          { ar: 'تفتح لك *الطرق*', en: 'opens the *ways* for you', art: 'path' },
+        ],
+        verse: { ar: 'وَالَّذِينَ جَاهَدُوا فِينَا لَنَهْدِيَنَّهُمْ *سُبُلَنَا*', en: '“Those who strive for Us, We will surely guide them to Our *ways*”', ref: 'سورة العنكبوت، آية ٦٩' } },
+
+      { id: 'shifa', template: 'illustrated', theme: 'rose', title: 'الشفاء', subtitle: 'Shifa · healing',
+        beats: [
+          { ar: 'لكل *جرح*...', en: 'For every *wound*...', art: 'heart' },
+          { ar: 'دواء في *كتابه*...', en: 'there is a cure in His *Book*...', art: 'book' },
+          { ar: 'فاقرأ *بقلبك*', en: 'so read with your *heart*', art: 'book' },
+        ],
+        verse: { ar: 'وَنُنَزِّلُ مِنَ الْقُرْآنِ مَا هُوَ *شِفَاءٌ* وَرَحْمَةٌ لِّلْمُؤْمِنِينَ', en: '“And We send down in the Quran what is *healing* and mercy for the believers”', ref: 'سورة الإسراء، آية ٨٢' } },
+
+      { id: 'ajr', template: 'illustrated', theme: 'olive', title: 'الأجر', subtitle: 'Nothing is lost',
+        beats: [
+          { ar: 'تعبك لا *يضيع*...', en: 'Your effort is never *lost*...', art: 'scale' },
+          { ar: 'وكل *نية* طيبة...', en: 'and every good *intention*...', art: 'scale' },
+          { ar: 'محفوظة *عنده*', en: 'is kept *with Him*', art: 'tree' },
+        ],
+        verse: { ar: 'إِنَّ اللَّهَ لَا يُضِيعُ *أَجْرَ* الْمُحْسِنِينَ', en: '“Indeed, Allah does not let the *reward* of the doers of good be lost”', ref: 'سورة التوبة، آية ١٢٠' } },
+
+      { id: 'dhun-nun', template: 'calligraphy', title: 'دعاء ذي النون',
+        base: 'لَا إِلَهَ إِلَّا أَنْتَ',
+        sections: [['سُبْحَانَكَ'], ['إِنِّي كُنْتُ مِنَ الظَّالِمِينَ']],
+        ref: 'سورة الأنبياء، آية ٨٧' },
+
+      { id: 'faraj', template: 'illustrated', theme: 'brown', title: 'الفَرَج', subtitle: 'Relief is coming',
+        beats: [
+          { ar: 'الشدّة *مؤقتة*...', en: 'Hardship is *temporary*...', art: 'rain' },
+          { ar: 'والفرج *وعد*...', en: 'and relief is a *promise*...', art: 'rain' },
+          { ar: 'من *الله*', en: 'from *Allah*', art: 'sun' },
+        ],
+        verse: { ar: 'سَيَجْعَلُ اللَّهُ بَعْدَ عُسْرٍ *يُسْرًا*', en: '“Allah will bring about *ease* after hardship”', ref: 'سورة الطلاق، آية ٧' } },
+
+      { id: 'sadaqa', template: 'illustrated', theme: 'light', title: 'الصدقة', subtitle: 'Sadaqah · giving',
+        beats: [
+          { ar: 'ما *تعطيه*...', en: 'What you *give*...', art: 'seed' },
+          { ar: 'لا *ينقص*...', en: 'is never *lost*...', art: 'seed' },
+          { ar: 'بل *يُخلفه* الله', en: 'Allah *replaces* it', art: 'tree' },
+        ],
+        verse: { ar: 'وَمَا أَنفَقْتُم مِّن شَيْءٍ فَهُوَ *يُخْلِفُهُ*', en: '“Whatever you spend of anything, He will *replace* it”', ref: 'سورة سبأ، آية ٣٩' } },
+
+      { id: 'wasiat', template: 'illustrated', theme: 'rose', title: 'رحمته وسعت', subtitle: 'His mercy embraces all',
+        beats: [
+          { ar: 'رحمته *تسع*...', en: 'His mercy *embraces*...', art: 'rain' },
+          { ar: 'كل *شيء*...', en: 'every *thing*...', art: 'orbit' },
+          { ar: 'وأنت *منهم*', en: 'and that includes *you*', art: 'heart' },
+        ],
+        verse: { ar: 'وَرَحْمَتِي *وَسِعَتْ* كُلَّ شَيْءٍ', en: '“And My mercy *encompasses* all things”', ref: 'سورة الأعراف، آية ١٥٦' } },
+
+      { id: 'rabbana-atina', template: 'calligraphy', title: 'ربنا آتنا',
+        base: 'رَبَّنَا آتِنَا',
+        sections: [['فِي الدُّنْيَا حَسَنَةً', 'وَفِي الْآخِرَةِ حَسَنَةً'], ['وَقِنَا عَذَابَ النَّارِ']],
+        ref: 'سورة البقرة، آية ٢٠١' },
     ],
   };
 
