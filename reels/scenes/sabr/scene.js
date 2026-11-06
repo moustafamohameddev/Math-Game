@@ -10,6 +10,13 @@
     petal: '#f8d22c', center: '#efa417', leaf: '#a3a679', glow: '250,214,80',
   };
 
+  // Variant mode: same reel, new text from a daily script (see scenes/daily/templates.js).
+  const V = window.VARIANT || null;
+  const TH = { accent: '#e5ac15', glow: '250,214,80' };
+  const VS = [1.6, 4.8, 8.0, 12.5], VO = [4.4, 7.52, 11.9, null];
+  const vVerseA = V ? Array.from({ length: V.verse.ar.split(/\s+/).filter(Boolean).length + 2 }, (_, k) => 8.0 + k * 0.15) : null;
+  const vVerseE = V ? Array.from({ length: V.verse.en.split(/\s+/).filter(Boolean).length }, (_, k) => 8.6 + k * 0.06) : null;
+
   // ---------- hourglass geometry ----------
   const CX = 360, TOP = 481, NECK = 598, BOT = 703;
   const half = (s) => 5 + 59 * Math.pow(Math.max(0, Math.cos((s * Math.PI) / 2)), 1.3);
@@ -154,13 +161,31 @@
     ];
 
     // ---- text ----
-    const titleHl = html('div', { class: 'title-hl' }, stage);
-    const title = html('div', { class: 'title', text: 'الصبر', dir: 'rtl' }, stage);
-    const sub = Caption.letters({ parent: stage, text: 'Sabr · patience', y: 377, font: '"Patrick Hand"', size: 23, color: C.sub });
+    let title = null, titleHl = null, titleV = null, sub, caps, brand = null;
+    if (V) {
+      titleV = Caption.line({ parent: stage, y: 322, size: 66, font: 'Amiri', weight: 700, color: C.title, maxWidth: 560, words: [{ w: V.title, hl: true }], hlEm: [-0.08, 0.6], hlColor: C.hl, gap: 0.3 });
+      sub = Caption.letters({ parent: stage, text: V.subtitle || '', y: 377, font: '"Patrick Hand"', size: 23, color: C.sub });
+      const o = { th: TH, mode: 'marker', AR: { font: 'Amiri', weight: 700, color: C.title, gap: 0.42, maxWidth: 600, hlEm: [-0.12, 0.58], hlPadX: 5 }, EN: { font: '"Patrick Hand"', color: C.sub, dir: 'ltr', gap: 0.34, maxWidth: 620, hlEm: [-0.05, 0.48], hlPadX: 3 } };
+      const two = Templates.autoCaps(stage, V.beats.slice(0, 2), VS, VO, Object.assign({ yA: 846, yE: 887, sizeA: 36, sizeE: 21 }, o));
+      const last = Templates.autoCaps(stage, [V.closing], [VS[3]], [null], Object.assign({ yA: 846, yE: 887, sizeA: 36, sizeE: 21 }, o))[0];
+      const vAr = Caption.line({ parent: stage, y: 852, size: 36, font: '"Amiri Quran"', weight: 400, color: C.title, gap: 0.4, maxWidth: 620, hlEm: [-0.33, 0.58], hlPadX: 5, words: ['﴿', ...Templates.words(V.verse.ar, TH, 'marker'), '﴾'] });
+      const vEn = Caption.line({ parent: stage, y: 909, size: 21, font: '"Patrick Hand"', color: C.sub, dir: 'ltr', gap: 0.34, maxWidth: 620, hlEm: [-0.05, 0.48], hlPadX: 3, words: Templates.words(V.verse.en, TH, 'marker') });
+      const vSrc = Caption.line({ parent: stage, y: 947, size: 16, font: 'Amiri', color: '#a8a39c', words: V.verse.ref.split(/\s+/), dir: 'rtl', gap: 0.3 });
+      const nA = Templates.countHl(vAr.words.map((w) => w.spec)), nE = Templates.countHl(vEn.words.map((w) => w.spec));
+      const hA = vVerseA[vVerseA.length - 1] + 0.3, hE = vVerseE[vVerseE.length - 1] + 0.25;
+      caps = [...two, { ar: vAr, en: vEn, src: vSrc,
+        tA: { times: vVerseA, hlTimes: Array.from({ length: nA }, (_, k) => hA + k * 0.15), hlDur: 0.2, out: 11.9 },
+        tE: { times: vVerseE, hlTimes: Array.from({ length: nE }, (_, k) => hE + k * 0.1), hlDur: 0.18, out: 11.9 },
+        tS: { times: vSrc.words.map(() => 9.3), out: 11.9 } }, last];
+      brand = Templates.brandMark(stage, 222, '#a3a19b', C.sand, 0.15);
+    } else {
+    titleHl = html('div', { class: 'title-hl' }, stage);
+    title = html('div', { class: 'title', text: 'الصبر', dir: 'rtl' }, stage);
+    sub = Caption.letters({ parent: stage, text: 'Sabr · patience', y: 377, font: '"Patrick Hand"', size: 23, color: C.sub });
 
     const AR = { font: 'Amiri', weight: 700, color: C.title, hl: [-4, 21], gap: 0.42, hlPadX: 5 };
     const EN = { font: '"Patrick Hand"', color: C.sub, dir: 'ltr', gap: 0.34, hl: [-1, 10], hlPadX: 3 };
-    const caps = [
+    caps = [
       {
         ar: Caption.line(Object.assign({ parent: stage, y: 846, size: 36, words: ['حين', 'يطول', { w: 'الانتظار...', hl: true }], fit: 259 }, AR)),
         en: Caption.line(Object.assign({ parent: stage, y: 887, size: 21, words: ['When', 'the', { w: 'waiting', hl: true }, 'grows', 'long...'], fit: 277 }, EN)),
@@ -189,6 +214,8 @@
         tE: { times: [12.86, 12.93, 13.0, 13.07, 13.13, 13.2, 13.25, 13.3, 13.35], hlTimes: [13.69, 13.79, 13.88, 13.98], hlDur: 0.1 },
       },
     ];
+
+    }
 
     return {
       render(t) {
@@ -272,11 +299,15 @@
         });
 
         // title block
-        const ta = ease.outQuad(prog(t, 0.36, 0.62));
-        title.style.opacity = ta.toFixed(3);
-        title.style.filter = ta < 1 ? `blur(${(6 * (1 - ta)).toFixed(2)}px)` : 'none';
-        title.style.transform = `translate(-50%,-50%) translateY(${(4 * (1 - ta)).toFixed(2)}px)`;
-        titleHl.style.transform = `scaleX(${ease.inOutQuad(prog(t, 0.67, 1.0)).toFixed(3)})`;
+        if (brand) brand.render(t);
+        if (titleV) titleV.render(t, { times: [0.36], dur: 0.28, hlTimes: [0.67], hlDur: 0.33 });
+        else {
+          const ta = ease.outQuad(prog(t, 0.36, 0.62));
+          title.style.opacity = ta.toFixed(3);
+          title.style.filter = ta < 1 ? `blur(${(6 * (1 - ta)).toFixed(2)}px)` : 'none';
+          title.style.transform = `translate(-50%,-50%) translateY(${(4 * (1 - ta)).toFixed(2)}px)`;
+          titleHl.style.transform = `scaleX(${ease.inOutQuad(prog(t, 0.67, 1.0)).toFixed(3)})`;
+        }
         sub.render(t, { start: 0.75, span: 0.16, dur: 0.06 });
 
         // captions
@@ -311,13 +342,14 @@
     ...[2.0, 2.43, 2.85, 3.27, 3.7, 4.1, 4.53, 4.95, 5.37, 5.79, 6.2, 6.62, 7.04, 7.46, 7.88].map((t) => ({ t, type: 'scribble', dur: 0.1, gain: -28, freq: 3600 })),
     { t: 8.3, type: 'swell', dur: 0.68, rise: 0.52, gain: -6, low: 65 },
     { t: 8.95, type: 'twinkle', dur: 1.4, density: 11, gain: -12 },
-    ...ticks.map(([t, g, f]) => ({ t, type: 'tick', gain: g + 17, freq: f })),
+    ...(V ? [...Templates.ticksFor(vVerseA.slice(1), -9), ...[...V.beats.slice(0, 2), V.closing].flatMap((bt, i) => { const T = Templates.beatTimes(bt, [1.6, 4.8, 12.5][i]); return [...Templates.ticksFor(T.ta.slice(1), -6), ...Templates.ticksFor(T.te, -9, 2)]; })]
+      : ticks.map(([t, g, f]) => ({ t, type: 'tick', gain: g + 17, freq: f }))),
   ];
 
   Reel.run({
-    id: 'sabr', title: 'الصبر', width: 720, height: 1280, duration: 17.13, fps: 30, background: C.bg,
-    fonts: ['700 40px Amiri', '400 40px "Amiri Quran"', '400 20px "Patrick Hand"', '400 16px Inter'],
-    original: '../../media/sabr.m4a',
+    id: V ? 'daily-' + V.id : 'sabr', title: V ? V.title : 'الصبر', width: 720, height: 1280, duration: 17.13, fps: 30, background: C.bg,
+    fonts: V ? Templates.FONTS : ['700 40px Amiri', '400 40px "Amiri Quran"', '400 20px "Patrick Hand"', '400 16px Inter'],
+    original: V ? null : '../../media/sabr.m4a',
     setup, sounds,
   });
 })();

@@ -11,6 +11,8 @@
  *   الكلمة بين نجمتين *كده* بتتلوّن/يتعمل لها هايلايت.
  *   الرسومات المتاحة: hourglass flower rain house stairs shield heart moon sun seed door lantern book tree orbit arch path scale
  *
+ * sabr / yudabbir / istighfar / alhamdulillah: نفس شكل الفيديوهات الأصلية الأربعة، بنص جديد.
+ *
  * calligraphy (خط عربي متحرك):
  *   base     : الجملة الأساسية، و ~ مكان المدّ (الكشيدة)
  *   sections : كل قسم سطرين/ثلاثة بيظهروا تحت الجملة الأساسية
@@ -262,6 +264,43 @@
           { ar: 'فاعمل لما *يبقى*', en: 'so work for what *remains*', art: 'sun' },
         ],
         verse: { ar: 'وَالْآخِرَةُ *خَيْرٌ* وَأَبْقَىٰ', en: '“And the Hereafter is *better* and more lasting”', ref: 'سورة الأعلى، آية ١٧' } },
+
+      // ───────────── نفس أنواع الفيديوهات الأصلية (نص جديد) ─────────────
+      // template: 'sabr' | 'yudabbir' | 'istighfar' | 'alhamdulillah'  → نفس شكل وحركة الفيديو الأصلي بالظبط
+      { id: 'yaqeen', template: 'sabr', title: 'اليقين', subtitle: 'Yaqeen · certainty',
+        beats: [
+          { ar: 'دعوت *كثيرًا*...', en: 'You have prayed *so much*...' },
+          { ar: 'وتأخّرت *الإجابة*...', en: 'and the *answer* seems late...' },
+        ],
+        verse: { ar: 'فَاصْبِرْ إِنَّ وَعْدَ اللَّهِ *حَقٌّ*', en: '“So be patient; indeed the promise of Allah is *true*”', ref: 'سورة الروم، آية ٦٠' },
+        closing: { ar: 'وسيأتيك *الخير* في وقته', en: 'and the *good* will come at its time' } },
+
+      { id: 'maakum', template: 'yudabbir', title: 'وهو معكم',
+        verse: { ar: 'وَهُوَ مَعَكُمْ أَيْنَ مَا *كُنتُمْ*', en: '“And He is with you *wherever* you are”', ref: 'سورة الحديد، آية ٤' },
+        beats: [
+          { ar: 'الذي يُمسك *السماء* بقدرته...', en: 'The One who holds the *sky* by His power...' },
+          { ar: 'لا يغيب عنه *بيتك*...', en: 'never loses sight of your *home*...' },
+          { ar: 'ولا تخفى عليه *دموعك*...', en: 'nor are your *tears* hidden from Him...' },
+          { ar: 'فاطمئن... *إنه* معك', en: 'so be at peace... *He* is with you' },
+        ] },
+
+      { id: 'dhikr-journey', template: 'istighfar', title: 'الذِّكر', subtitle: 'Dhikr · remembrance',
+        beats: [
+          { ar: 'الذِّكر *يُحيي* القلب...', en: 'Dhikr *revives* the heart...' },
+          { ar: '*ويحفظك*...', en: 'it *guards* you...' },
+          { ar: '*ويرفعك*...', en: 'it *raises* you higher...' },
+        ],
+        closing: { ar: 'سبحان *الله* وبحمده سبحان الله العظيم', en: 'Glory be to *Allah* and His is the praise, glory be to Allah the Almighty' } },
+
+      { id: 'tahlil', template: 'alhamdulillah', title: 'لا إله إلا الله',
+        base: 'لَا إِلَ~هَ إِلَّا اللَّهُ',
+        sections: [
+          ['وَحْدَهُ', 'لَا شَرِيكَ لَهُ'],
+          [{ t: 'لَهُ', slot: 0 }, { t: 'الْمُلْكُ', slot: 2 }, { t: 'وَلَهُ', slot: 3 }, { t: 'الْحَمْدُ', slot: 4 }],
+          ['وَهُوَ عَلَى', 'كُلِّ', 'شَيْءٍ', 'قَدِيرٌ', 'فِي يَوْمٍ مِائَةَ مَرَّةٍ'],
+          ['وَكُتِبَتْ لَهُ', 'مِائَةُ حَسَنَةٍ'],
+        ],
+        ref: 'متفق عليه' },
 
       // ───────────── الدفعة التانية ─────────────
       { id: 'salah', template: 'illustrated', theme: 'olive', title: 'الصلاة', subtitle: 'Salah · your daily rest',

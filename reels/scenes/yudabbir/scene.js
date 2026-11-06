@@ -10,6 +10,12 @@
     sun: '#fad42e', tan: '#cea054', ice: '#98abb6', moonW: '#eee5d6',
   };
   const GLOW = '0 0 10px rgba(248,213,42,.55)';
+  // Variant mode: same reel, new text from a daily script (see scenes/daily/templates.js).
+  const V = window.VARIANT || null;
+  const TH = { accent: '#f8d52a', glow: '248,213,42' };
+  const VS = [1.25, 4.25, 7.05, 9.65], VO = [3.82, 6.62, 9.22, null];
+  const vVerseA = V ? Array.from({ length: V.verse.ar.split(/\s+/).filter(Boolean).length + 2 }, (_, k) => 0.17 + k * 0.13) : null;
+  const vVerseE = V ? Array.from({ length: V.verse.en.split(/\s+/).filter(Boolean).length }, (_, k) => 0.62 + k * 0.055) : null;
 
   function boilPath(parent, pts, attrs, seed, opts = {}) {
     const vars = [0, 1, 2].map((k) => sketch(pts, Object.assign({ amp: 1.0, step: 18, seed: seed * 13 + k * 101 }, opts)));
@@ -115,16 +121,25 @@
     const strokes = [hill, ...walls];
 
     // ================= text =================
-    const verse = Caption.line({ parent: stage, y: 281, size: 34, font: '"Amiri Quran"', color: C.text, gap: 0.3, fit: 467,
+    let verse, verseEn, source, caps, brand = null;
+    if (V) {
+      verse = Caption.line({ parent: stage, y: 281, size: 34, font: '"Amiri Quran"', color: C.text, gap: 0.3, maxWidth: 560, words: ['﴿', ...Templates.words(V.verse.ar, TH, 'glow'), '﴾'] });
+      verseEn = Caption.line({ parent: stage, y: 339, size: 19, font: '"Patrick Hand"', color: C.en, dir: 'ltr', gap: 0.3, maxWidth: 600, words: Templates.words(V.verse.en, TH, 'glow') });
+      source = Caption.line({ parent: stage, y: 369, size: 15, font: 'Amiri', color: C.dim, gap: 0.3, words: V.verse.ref.split(/\s+/) });
+      caps = Templates.autoCaps(stage, V.beats, VS, VO, { th: TH, mode: 'glow', yA: 842, yE: 883, sizeA: 34, sizeE: 19,
+        AR: { font: 'Amiri', weight: 700, color: C.text, gap: 0.42, maxWidth: 600 }, EN: { font: '"Patrick Hand"', color: C.en, dir: 'ltr', gap: 0.34, maxWidth: 620 } });
+      brand = Templates.brandMark(stage, 222, C.brand, C.yellow, 0.15);
+    } else {
+    verse = Caption.line({ parent: stage, y: 281, size: 34, font: '"Amiri Quran"', color: C.text, gap: 0.3, fit: 467,
       words: ['﴿', 'يُدَبِّرُ', 'ٱلْأَمْرَ', 'مِنَ', 'ٱلسَّمَآءِ', 'إِلَى', { w: 'ٱلْأَرْضِ', color: C.yellow, glow: GLOW }, '﴾'] });
-    const verseEn = Caption.line({ parent: stage, y: 339, size: 19, font: '"Patrick Hand"', color: C.en, dir: 'ltr', gap: 0.3, fit: 440,
+    verseEn = Caption.line({ parent: stage, y: 339, size: 19, font: '"Patrick Hand"', color: C.en, dir: 'ltr', gap: 0.3, fit: 440,
       words: ['“He', 'arranges', 'every', 'matter', 'from', 'the', 'heavens', 'to', 'the', { w: 'earth”', color: C.yellow }] });
-    const source = Caption.line({ parent: stage, y: 369, size: 15, font: 'Amiri', color: C.dim, gap: 0.3, fit: 88, words: ['سورة', 'السجدة', '·', '٥'] });
+    source = Caption.line({ parent: stage, y: 369, size: 15, font: 'Amiri', color: C.dim, gap: 0.3, fit: 88, words: ['سورة', 'السجدة', '·', '٥'] });
 
     const AR = { font: 'Amiri', weight: 700, color: C.text, gap: 0.42 };
     const EN = { font: '"Patrick Hand"', color: C.en, dir: 'ltr', gap: 0.34 };
     const Y = (w) => ({ w, color: C.yellow, glow: GLOW });
-    const caps = [
+    caps = [
       { ar: Caption.line(Object.assign({ parent: stage, y: 842, size: 34, fit: 387, words: ['من', 'تولّى', 'تدبير', 'هذا', Y('الكون'), 'بأسره...'] }, AR)),
         en: Caption.line(Object.assign({ parent: stage, y: 883, size: 19, fit: 340, words: ['The', 'One', 'who', 'arranges', 'this', 'entire', Y('universe...')] }, EN)),
         tA: { times: [1.25, 1.38, 1.52, 1.65, 1.88, 2.15], out: 3.82, outDur: 0.14 },
@@ -142,6 +157,8 @@
         tA: { times: [9.65, 9.78, 10.05, 10.28, 10.55, 10.82] },
         tE: { times: [10.02, 10.08, 10.12, 10.18, 10.25, 10.35, 10.48, 10.55, 10.65, 10.78, 10.85] } },
     ];
+
+    }
 
     return {
       render(t) {
@@ -201,9 +218,10 @@
         moon.setAttribute('transform', 'translate(500,483)');
 
         // ---- text ----
-        verse.render(t, { times: [0.17, 0.33, 0.47, 0.57, 0.67, 0.83, 1.07, 1.33] });
-        verseEn.render(t, { times: [0.62, 0.65, 0.72, 0.78, 0.85, 0.92, 0.98, 1.02, 1.08, 1.22] });
-        source.render(t, { times: [1.12, 1.12, 1.12, 1.12], dur: 0.25 });
+        if (brand) brand.render(t);
+        verse.render(t, { times: V ? vVerseA : [0.17, 0.33, 0.47, 0.57, 0.67, 0.83, 1.07, 1.33] });
+        verseEn.render(t, { times: V ? vVerseE : [0.62, 0.65, 0.72, 0.78, 0.85, 0.92, 0.98, 1.02, 1.08, 1.22] });
+        source.render(t, { times: source.words.map(() => 1.12), dur: 0.25 });
         caps.forEach((c) => { c.ar.render(t, c.tA); c.en.render(t, c.tE); });
       },
     };
@@ -225,13 +243,15 @@
     { t: 4.254, type: 'ping', gain: -12 },
     { t: 7.055, type: 'ping', gain: -10 },
     { t: 9.654, type: 'ping', gain: -8 },
-    ...ticks.map(([t, g]) => ({ t: t + 0.02, type: 'tick', gain: g + 17 })),
+    ...(V ? [...Templates.ticksFor(vVerseA, -6), ...Templates.ticksFor(vVerseE, -10, 2),
+      ...V.beats.flatMap((bt, i) => { const T = Templates.beatTimes(bt, VS[i]); return [...Templates.ticksFor(T.ta, -7), ...Templates.ticksFor(T.te, -11, 2)]; })]
+      : ticks.map(([t, g]) => ({ t: t + 0.02, type: 'tick', gain: g + 17 }))),
   ];
 
   Reel.run({
-    id: 'yudabbir', title: 'يدبّر الأمر', width: 720, height: 1280, duration: 13.93, fps: 30, background: C.bg,
-    fonts: ['700 40px Amiri', '400 40px Amiri', '400 40px "Amiri Quran"', '400 20px "Patrick Hand"', '400 16px Inter'],
-    original: '../../media/yudabbir.m4a',
+    id: V ? 'daily-' + V.id : 'yudabbir', title: V ? V.title : 'يدبّر الأمر', width: 720, height: 1280, duration: 13.93, fps: 30, background: C.bg,
+    fonts: V ? Templates.FONTS : ['700 40px Amiri', '400 40px Amiri', '400 40px "Amiri Quran"', '400 20px "Patrick Hand"', '400 16px Inter'],
+    original: V ? null : '../../media/yudabbir.m4a',
     setup, sounds,
   });
 })();

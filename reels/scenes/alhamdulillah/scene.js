@@ -51,7 +51,7 @@
       text = best.cand;
     }
     const b = ink(text, font);
-    const size = Math.min(bw / (b.r - b.l), (bh / (b.b - b.t)) * 1.45);
+    const size = Math.min(bw / (b.r - b.l), (bh / (b.b - b.t)) * (attrs.hScale || 1.45));
     const x = (x0 + x1) / 2 - ((b.l + b.r) / 2) * size;
     const y = (y0 + y1) / 2 - ((b.t + b.b) / 2) * size;
     // a thin same-colour stroke gives the heavier pen of the original lettering
@@ -93,7 +93,59 @@
       ] },
   ];
 
+  // Variant mode: same reel, new words from a daily script (see scenes/daily/templates.js).
+  // Each section's phrases take the slots (position, colour, timing) of the original.
+  const V = window.VARIANT || null;
+  if (V) {
+    SCENES.forEach((sc, i) => {
+      if (i === 0) return;
+      const orig = sc.phrases;
+      sc.phrases = (V.sections[i - 1] || []).slice(0, orig.length).map((p, k) => {
+        const spec = typeof p === 'string' ? { t: p } : p;
+        const slot = orig[spec.slot ?? k];
+        return { t: spec.t, box: slot.box, gold: slot.gold, big: slot.big, white: slot.white, at: orig[k].at, dur: orig[k].dur };
+      });
+    });
+  }
+  const BASE = V ? V.base : 'الْحَ~مْدُ لِلَّهِ';
+
+  /** x-range (stage px) of the stretched kashida line of a base phrase fitted to BASE_BOX. */
+  const BASE_BOX = [311, 960, 290, 426];
+  function kashidaSpan(text) {
+    const font = 'Amiri', [x0, x1, y0, y1] = BASE_BOX, bw = x1 - x0, bh = y1 - y0;
+    let best = null;
+    for (let n = 0; n <= 40 && text.includes('~'); n++) {
+      const cand = text.replace('~', 'ـ'.repeat(n)), m = ink(cand, font);
+      const err = Math.abs((m.r - m.l) / (m.b - m.t) - bw / bh);
+      if (!best || err < best.err) best = { cand, err };
+    }
+    const txt = best ? best.cand : text, b = ink(txt, font);
+    const size = Math.min(bw / (b.r - b.l), (bh / (b.b - b.t)) * 1.45);
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const ctx = c.getContext('2d', { willReadFrequently: true });
+    ctx.font = `700 ${size}px ${font}`; ctx.direction = 'rtl'; ctx.textAlign = 'center';
+    ctx.fillText(txt, (x0 + x1) / 2 - ((b.l + b.r) / 2) * size, (y0 + y1) / 2 - ((b.t + b.b) / 2) * size);
+    const d = ctx.getImageData(0, 0, W, H).data, col = [];
+    for (let x = 0; x < W; x++) { let n = 0; for (let y = 150; y < 560; y++) if (d[(y * W + x) * 4 + 3] > 100) n++; col.push(n); }
+    const thin = col.map((n) => n > 0 && n < size * 0.2);
+    let run = [0, 0], cur = null;
+    thin.forEach((v, x) => { if (v) { if (cur == null) cur = x; if (x - cur > run[1] - run[0]) run = [cur, x]; } else cur = null; });
+    return run;
+  }
+  const GHOST = V ? [V.base.replace('~', ''), (V.sections[1] || []).map((p) => (typeof p === 'string' ? p : p.t)).join(' ') || V.base.replace('~', '')]
+    : ['حَمْدًا كَثِيرًا طَيِّبًا', 'مُبَارَكًا فِيهِ حَمْدًا'];
+
   function setup(stage) {
+    if (V) {
+      // move the phrases that sit on the kashida so they follow this base's kashida
+      const k0 = kashidaSpan('الْحَ~مْدُ لِلَّهِ'), k1 = kashidaSpan(V.base);
+      const mapX = (x) => k1[0] + ((x - k0[0]) * (k1[1] - k1[0])) / Math.max(1, k0[1] - k0[0]);
+      SCENES.forEach((sc) => sc.phrases.forEach((p) => {
+        const cx = (p.box[0] + p.box[1]) / 2;
+        if (p.big || p.white || cx < k0[0] || cx > k0[1]) return;
+        p.box = [Math.max(k1[0] + 6, mapX(p.box[0])), Math.min(k1[1] - 6, mapX(p.box[1])), p.box[2], p.box[3]];
+      }));
+    }
     const layers = SCENES.map((sc) => {
       const g = html('div', { class: 'scene' }, stage);
       Object.assign(g.style, { position: 'absolute', inset: '0', background: sc.theme.bg, overflow: 'hidden' });
@@ -101,20 +153,26 @@
       if (sc.theme === CREAM) {
         // faint blurred "ghost" lettering in the paper background
         const ghost = svg('g', { opacity: 0.55, style: 'filter:blur(9px)' }, root);
-        phrase(ghost, 'حَمْدًا كَثِيرًا طَيِّبًا', [430, 900, 200, 300], { fill: '#fbf8ee' });
-        phrase(ghost, 'مُبَارَكًا فِيهِ حَمْدًا', [150, 1130, 505, 600], { fill: '#fbf8ee' });
+        phrase(ghost, GHOST[0], [430, 900, 200, 300], { fill: '#fbf8ee' });
+        phrase(ghost, GHOST[1], [150, 1130, 505, 600], { fill: '#fbf8ee' });
       }
       // base: ٱلْحَمْدُ لِلَّهِ with a long kashida (ink box measured: x 311–960, y 290–426)
       const baseG = svg('g', { style: `filter:${sc.theme.shadow}` }, root);
-      const base = phrase(baseG, 'الْحَ~مْدُ لِلَّهِ', [311, 960, 290, 426], { fill: sc.theme.text });
+      const base = phrase(baseG, BASE, [311, 960, 290, 426], { fill: sc.theme.text });
       const phr = sc.phrases.map((p) => {
         const fill = p.big ? '#c4c08c' : p.gold ? TEAL.gold : p.white ? '#f4f8fb' : sc.theme.text;
         const pg = svg('g', { style: `filter:${sc.theme.shadow}` }, root);
-        const el = phrase(pg, p.t, p.box, { fill });
+        const el = phrase(pg, p.t, p.box, { fill, hScale: V ? 1.05 : 1.45 });
         return Object.assign({ g: pg, el }, p);
       });
-      return { sc, g, baseG, base, phr };
+      let ref = null;
+      if (V && V.ref && sc === SCENES[SCENES.length - 1]) {
+        ref = svg('text', { x: W / 2, y: 610, 'text-anchor': 'middle', direction: 'rtl', 'font-family': 'Amiri', 'font-size': 24, fill: '#7c7a70', opacity: 0 }, root);
+        ref.textContent = V.ref;
+      }
+      return { sc, g, baseG, base, phr, ref };
     });
+    const brand = V ? Templates.brandMark(stage, 684, '#8b8a80', '#c9a95e', 0.2, W) : null;
 
     // transition masks (black bars)
     const bars = html('div', { class: 'bars' }, stage);
@@ -159,6 +217,8 @@
           });
         });
 
+        layers.forEach((L) => { if (L.ref) L.ref.setAttribute('opacity', ease.outQuad(prog(t, 14.2, 14.6)).toFixed(3)); });
+        if (brand) brand.render(t);
         // transitions
         if (t >= 1.365 && t < 1.6) setBars(blinds(76, 283.5, Math.max(2, (t - 1.368) * 1240)));
         else if (t >= 7.885 && t < 8.07) { const h = 27 + Math.max(0, t - 7.9) * 2280; setBars([[0, Math.max(0, 359 - h)], [Math.min(H, 359 + h), H]]); }
@@ -184,12 +244,12 @@
     { t: 12.8, type: 'whoosh', dur: 0.6, rise: 0.3, gain: -15 },
     { t: 12.9, type: 'pad', dur: 2.2, gain: -26, notes: [146.83, 220, 293.66] },
     ...[13.93, 14.63].map((t) => ({ t, type: 'twinkle', dur: 0.3, gain: -27, density: 12 })),
-  ];
+  ].map((e) => (V ? Object.assign({}, e, { gain: e.gain + 8 }) : e)); // variants have no vocal track, so the bed is louder
 
   Reel.run({
-    id: 'alhamdulillah', title: 'الحمد لله', width: W, height: H, duration: 15.13, fps: 30, background: CREAM.bg,
-    fonts: ['700 40px Amiri'],
-    original: '../../media/alhamdulillah.m4a', preferOriginal: true,
+    id: V ? 'daily-' + V.id : 'alhamdulillah', title: V ? V.title : 'الحمد لله', width: W, height: H, duration: 15.13, fps: 30, background: CREAM.bg,
+    fonts: V ? Templates.FONTS : ['700 40px Amiri'],
+    original: V ? null : '../../media/alhamdulillah.m4a', preferOriginal: !V,
     setup, sounds,
   });
 })();

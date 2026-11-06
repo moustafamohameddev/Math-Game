@@ -25,11 +25,11 @@
   };
 
   /** The account handle shown on every daily video (set `brand` in daily/scripts.js). */
-  function brandMark(stage, y, color, accent, t0) {
+  function brandMark(stage, y, color, accent, t0, width = 720) {
     const name = (global.DAILY && DAILY.brand) || '';
     if (!name) return { render() {} };
     const el = html('div', { class: 'brand-mark', dir: 'ltr' }, stage);
-    Object.assign(el.style, { position: 'absolute', left: '0', width: '720px', top: y + 'px', transform: 'translateY(-50%)', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '7px',
+    Object.assign(el.style, { position: 'absolute', left: '0', width: width + 'px', top: y + 'px', transform: 'translateY(-50%)', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '7px',
       font: '500 17px Inter, system-ui, sans-serif', letterSpacing: '1.4px', color, zIndex: 4, whiteSpace: 'nowrap' });
     const dot = html('span', {}, el);
     Object.assign(dot.style, { width: '7px', height: '7px', borderRadius: '50%', background: accent, display: 'inline-block' });
@@ -277,6 +277,37 @@
   }
 
   // =====================================================================
+  // helpers used by the four original reels in "variant" mode
+  // (same visuals as the originals, new text from a script)
+  // =====================================================================
+  const nWords = (s) => s.split(/\s+/).filter(Boolean).length;
+  function beatTimes(b, s) {
+    return {
+      ta: Array.from({ length: nWords(b.ar) }, (_, k) => s + k * 0.15),
+      te: Array.from({ length: nWords(b.en) }, (_, k) => s + 0.36 + k * 0.065),
+    };
+  }
+  /** Build caption pairs for beats starting at `starts` (seconds), fading at `outs`. */
+  function autoCaps(stage, beats, starts, outs, o) {
+    return beats.map((b, i) => {
+      const T = beatTimes(b, starts[i]);
+      const ar = Caption.line(Object.assign({ parent: stage, y: o.yA, size: o.sizeA, words: words(b.ar, o.th, o.mode) }, o.AR));
+      const en = Caption.line(Object.assign({ parent: stage, y: o.yE, size: o.sizeE, words: words(b.en, o.th, o.mode) }, o.EN));
+      const nHa = countHl(ar.words.map((w) => w.spec)), nHe = countHl(en.words.map((w) => w.spec));
+      const ha = T.ta[T.ta.length - 1] + 0.3, he = T.te[T.te.length - 1] + 0.25;
+      const out = outs[i] == null ? undefined : outs[i];
+      return { ar, en, T,
+        tA: { times: T.ta, hlTimes: Array.from({ length: nHa }, (_, k) => ha + k * 0.15), hlDur: 0.25, out, outDur: 0.14 },
+        tE: { times: T.te, hlTimes: Array.from({ length: nHe }, (_, k) => he + k * 0.1), hlDur: 0.2, out, outDur: 0.14 } };
+    });
+  }
+  /** Tick sounds for a set of word times. */
+  function ticksFor(times, gain = -8, every = 1) {
+    return times.filter((_, k) => k % every === 0).map((t) => ({ t: t + 0.02, type: 'tick', gain }));
+  }
+  const VARIANT_TYPES = ['sabr', 'yudabbir', 'istighfar', 'alhamdulillah'];
+
+  // =====================================================================
   function pick(list) {
     const q = new URLSearchParams(location.search);
     if (q.get('s')) return list.find((x) => x.id === q.get('s'));
@@ -291,12 +322,21 @@
   function run() {
     const sc = pick(DAILY.scripts);
     if (!sc) { document.body.textContent = 'Script not found'; return; }
-    const cfg = (sc.template === 'calligraphy' ? calligraphy : illustrated)(sc);
+    if (VARIANT_TYPES.includes(sc.template)) {
+      // reuse the original reel with the script's text
+      global.VARIANT = sc;
+      const s = document.createElement('script');
+      s.src = `../${sc.template}/scene.js`;
+      document.body.appendChild(s);
+      return;
+    }
+    const cfg =(sc.template === 'calligraphy' ? calligraphy : illustrated)(sc);
     Reel.run(Object.assign(cfg, {
       id: 'daily-' + sc.id, title: sc.title || sc.base.replace('~', ''), fps: 30,
       fonts: ['700 40px Amiri', '400 40px Amiri', '400 40px "Amiri Quran"', '400 20px "Patrick Hand"', '500 17px Inter'],
     }));
   }
 
-  global.Templates = { THEMES, illustrated, calligraphy, run, pick };
+  const FONTS = ['700 40px Amiri', '400 40px Amiri', '400 40px "Amiri Quran"', '400 20px "Patrick Hand"', '500 17px Inter'];
+  global.Templates = { THEMES, illustrated, calligraphy, run, pick, words, countHl, brandMark, beatTimes, autoCaps, ticksFor, FONTS };
 })(window);

@@ -11,6 +11,10 @@
   };
   const GLOW = '0 0 10px rgba(252,213,37,.55)';
   const DOT = { x: 360, y: 703 };
+  // Variant mode: same reel, new text from a daily script (see scenes/daily/templates.js).
+  const V = window.VARIANT || null;
+  const TH = { accent: '#fcd525', glow: '252,213,37' };
+  const VS = [1.25, 4.07, 6.58, 9.35], VO = [3.55, 6.05, 8.82, null];
 
   function setup(stage) {
     const root = svg('svg', { width: 720, height: 1280, viewBox: '0 0 720 1280' }, stage);
@@ -88,14 +92,22 @@
     const icons = [{ g: iFlower, a: -71, t0: 9.6 }, { g: iShield, a: 49, t0: 9.8 }, { g: iStairs, a: 168, t0: 9.95 }];
 
     // ---------------- text ----------------
-    const title = Caption.line({ parent: stage, y: 312, size: 52, font: 'Amiri', weight: 700, color: C.yellow, fit: 182, words: [{ w: 'الاستغفار', glow: '0 0 14px rgba(252,213,37,.5)' }] });
-    const sub = Caption.letters({ parent: stage, text: 'Istighfar · seeking forgiveness', y: 367, font: '"Patrick Hand"', size: 20.5, color: C.sub });
+    let title, sub, caps, brand = null;
+    if (V) {
+      title = Caption.line({ parent: stage, y: 312, size: 52, font: 'Amiri', weight: 700, color: C.yellow, maxWidth: 560, words: [{ w: V.title, glow: '0 0 14px rgba(252,213,37,.5)' }] });
+      sub = Caption.letters({ parent: stage, text: V.subtitle || '', y: 367, font: '"Patrick Hand"', size: 20.5, color: C.sub });
+      caps = Templates.autoCaps(stage, [...V.beats, V.closing], VS, VO, { th: TH, mode: 'glow', yA: 842, yE: 888, sizeA: 34, sizeE: 20,
+        AR: { font: 'Amiri', weight: 700, color: C.cream, gap: 0.42, maxWidth: 600 }, EN: { font: '"Patrick Hand"', color: C.en, dir: 'ltr', gap: 0.34, maxWidth: 620 } });
+      brand = Templates.brandMark(stage, 222, C.brand, C.yellow, 0.15);
+    } else {
+    title = Caption.line({ parent: stage, y: 312, size: 52, font: 'Amiri', weight: 700, color: C.yellow, fit: 182, words: [{ w: 'الاستغفار', glow: '0 0 14px rgba(252,213,37,.5)' }] });
+    sub = Caption.letters({ parent: stage, text: 'Istighfar · seeking forgiveness', y: 367, font: '"Patrick Hand"', size: 20.5, color: C.sub });
     const AR = { font: 'Amiri', weight: 700, color: C.cream, gap: 0.42 };
     const EN = { font: '"Patrick Hand"', color: C.en, dir: 'ltr', gap: 0.34 };
     const Y = (w) => ({ w, color: C.yellow, glow: GLOW });
     const part = (w, yel, rest) => ({ w, html: `<span style="color:${C.yellow};text-shadow:${GLOW}">${yel}</span>${rest}` });
     const partPre = (w, pre, yel, rest) => ({ w, html: `${pre}<span style="color:${C.yellow};text-shadow:${GLOW}">${yel}</span>${rest}` });
-    const caps = [
+    caps = [
       { ar: Caption.line(Object.assign({ parent: stage, y: 842, size: 34, fit: 228, words: ['الاستغفار', part('ينفع...', 'ينفع', '...')] }, AR)),
         en: Caption.line(Object.assign({ parent: stage, y: 888, size: 20, fit: 178, words: ['Istighfar', Y('benefits'), 'you...'] }, EN)),
         tA: { times: [1.25, 1.52], out: 3.55, outDur: 0.14 }, tE: { times: [1.55, 1.72, 1.85], out: 3.55, outDur: 0.14 } },
@@ -109,6 +121,8 @@
         en: Caption.line(Object.assign({ parent: stage, y: 888, size: 20, fit: 501, words: ['I', 'seek', 'forgiveness', 'from', { w: 'Allah,', html: `<span style="color:${C.yellow}">Allah</span>,` }, 'the', 'Almighty,', 'and', 'I', 'repent', 'to', 'Him'] }, EN)),
         tA: { times: [9.35, 9.62, 9.92, 10.05, 10.18] }, tE: { times: [9.75, 9.78, 9.82, 9.88, 9.98, 10.12, 10.18, 10.25, 10.35, 10.38, 10.42, 10.48] } },
     ];
+
+    }
 
     function setFlower(p, t) {
       // p: 0 = wilted (grey, drooping) → 1 = revived (yellow, upright)
@@ -219,6 +233,7 @@
         });
 
         // text
+        if (brand) brand.render(t);
         title.render(t, { times: [0.36], dur: 0.3 });
         sub.render(t, { start: 0.75, span: 0.22, dur: 0.06 });
         caps.forEach((c) => { c.ar.render(t, c.tA); c.en.render(t, c.tE); });
@@ -245,13 +260,14 @@
     { t: 8.45, type: 'swell', dur: 0.7, rise: 0.45, gain: -12, low: 70 },
     { t: 9.38, type: 'swell', dur: 0.7, rise: 0.3, gain: -11, low: 80 },
     { t: 9.62, type: 'twinkle', dur: 0.5, density: 14, gain: -20 },
-    ...ticks.map(([t, g]) => ({ t: t + 0.02, type: 'tick', gain: g + 17 })),
+    ...(V ? [...V.beats, V.closing].flatMap((bt, i) => { const T = Templates.beatTimes(bt, VS[i]); return [...Templates.ticksFor(T.ta.slice(1), -7), ...Templates.ticksFor(T.te, -10, 2)]; })
+      : ticks.map(([t, g]) => ({ t: t + 0.02, type: 'tick', gain: g + 17 }))),
   ];
 
   Reel.run({
-    id: 'istighfar', title: 'الاستغفار', width: 720, height: 1280, duration: 13.02, fps: 30, background: C.bg,
-    fonts: ['700 40px Amiri', '400 20px "Patrick Hand"', '400 16px Inter'],
-    original: '../../media/istighfar.m4a',
+    id: V ? 'daily-' + V.id : 'istighfar', title: V ? V.title : 'الاستغفار', width: 720, height: 1280, duration: 13.02, fps: 30, background: C.bg,
+    fonts: V ? Templates.FONTS : ['700 40px Amiri', '400 20px "Patrick Hand"', '400 16px Inter'],
+    original: V ? null : '../../media/istighfar.m4a',
     setup, sounds,
   });
 })();
