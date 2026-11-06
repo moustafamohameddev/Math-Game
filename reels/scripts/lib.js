@@ -43,18 +43,24 @@ function startServer() {
   });
 }
 
-/** Open a scene in capture mode. Returns {page, info, close, shot(t, file)} */
-async function openScene(id, { scale = 1 } = {}) {
+/** Page path for a target: a scene id, or "daily:<script-id>" for a daily reel. */
+function targetPath(id) {
+  if (id.startsWith('daily:')) return `/scenes/daily/index.html?s=${encodeURIComponent(id.slice(6))}&capture=1`;
   if (!SCENES.includes(id)) {
-    console.error(`Unknown scene "${id}". Choose one of: ${SCENES.join(', ')}`);
+    console.error(`Unknown scene "${id}". Choose one of: ${SCENES.join(', ')}, or daily:<script-id>`);
     process.exit(1);
   }
+  return `/scenes/${id}/index.html?capture=1`;
+}
+
+/** Open a scene in capture mode. Returns {page, info, close, shot(t, file)} */
+async function openScene(id, { scale = 1 } = {}) {
   const { chromium } = loadPlaywright();
   const { srv, port } = await startServer();
   const browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
   const page = await browser.newPage({ viewport: { width: 400, height: 400 }, deviceScaleFactor: scale });
   page.on('pageerror', (e) => console.error('[page]', e.message));
-  await page.goto(`http://127.0.0.1:${port}/scenes/${id}/index.html?capture=1`);
+  await page.goto(`http://127.0.0.1:${port}${targetPath(id)}`);
   await page.waitForFunction(() => window.__reelReady === true, null, { timeout: 60000 });
   const info = await page.evaluate(() => window.__reel.info);
   await page.setViewportSize({ width: info.width, height: info.height });

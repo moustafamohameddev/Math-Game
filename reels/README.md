@@ -11,6 +11,35 @@
 | `yudabbir`: يدبّر الأمر، مجموعة شمسية ثم بيت تحت المطر | 720×1280 | 13.9 ث |
 | `istighfar`: الاستغفار، مطر ثم وردة ثم درع ثم سلّم | 720×1280 | 13.0 ث |
 
+## فيديو كل يوم
+
+في `daily/scripts.js` فيه **32 سكريبت جاهز**: 26 بالرسومات وفي آخرهم آية، و6 بالخط العربي المتحرك وفيهم أذكار من السنة.
+السكريبتات بتمشي بالترتيب، سكريبت لكل يوم ابتداءً من تاريخ `start`، ولما تخلص بترجع من الأول.
+
+```bash
+npm run daily                        # يطلّع فيديو النهارده في output/daily/
+npm run daily -- --date 2026-11-20   # فيديو يوم معيّن
+npm run daily -- --id tawakkul       # سكريبت معيّن
+npm run daily -- --all               # كل الفيديوهات مرة واحدة
+npm run daily -- --list              # الجدول: كل يوم وفيديوهه
+```
+
+عشان تضيف فيديو جديد، ضيف عنصر في `daily/scripts.js`:
+
+```js
+{ id: 'sabr2', template: 'illustrated', theme: 'light',   // light | brown | navy
+  title: 'الصبر', subtitle: 'Sabr · patience',
+  beats: [                                                 // كل جملة ليها رسمة
+    { ar: 'حين يطول *الانتظار*...', en: 'When the *waiting* grows long...', art: 'hourglass' },
+  ],
+  verse: { ar: 'إِنَّ اللَّهَ مَعَ *الصَّابِرِينَ*', en: '“Indeed, Allah is with the *patient*”', ref: 'سورة البقرة، آية ١٥٣' } }
+```
+
+- الكلمة اللي بين نجمتين `*كده*` بيتعمل لها هايلايت أو بتتلوّن.
+- الرسومات المتاحة: `hourglass` `flower` `rain` `house` `stairs` `shield` `heart` `moon` `sun` `seed` `door` `lantern` `book` `tree` `orbit`
+- التوقيتات والمؤثرات الصوتية والإضاءة بتتحسب لوحدها من النص.
+- راجع نص كل آية أو حديث قبل ما تنشر.
+
 ## التشغيل
 
 ```bash
@@ -60,5 +89,3 @@ scenes/<id>/        كل مشهد: render(t) دالة نقية في الزمن،
 scripts/            render و compare و extract-audio
 server.js           سيرفر ملفات ثابت (Node فقط)
 ```
-
-اكتب اسم حسابك مكان `your.handle` في أول كل ملف `scene.js`.

@@ -83,19 +83,27 @@
       el.style.top = o.y - lh() / 2 + 'px';
       el.style.transform = `translateX(${o.x - 360}px)`;
       trimInk();
+      const hl = o.hlEm ? [o.hlEm[0] * size, o.hlEm[1] * size] : o.hl;
       words.forEach((w) => {
         if (!w.hl) return;
-        w.hl.style.top = lh() / 2 + o.hl[0] + 'px';
-        w.hl.style.height = o.hl[1] - o.hl[0] + 'px';
+        w.hl.style.top = lh() / 2 + hl[0] + 'px';
+        w.hl.style.height = hl[1] - hl[0] + 'px';
       });
     }
+    const lineWidth = () => words.reduce((s, wd) => s + wd.el.getBoundingClientRect().width, 0) - o.gap * size;
     layout();
     if (o.fit) {
       // Scale the font so the line is as wide as in the original video
       // (everything is em-based, so one proportional pass is exact; two for rounding).
       for (let k = 0; k < 2; k++) {
-        const w = words.reduce((s, wd) => s + wd.el.getBoundingClientRect().width, 0) - o.gap * size;
+        const w = lineWidth();
         if (w > 0) { size *= o.fit / w; layout(); }
+      }
+    } else if (o.maxWidth) {
+      // Shrink long lines so they always stay inside the frame.
+      for (let k = 0; k < 2; k++) {
+        const w = lineWidth();
+        if (w > o.maxWidth) { size *= o.maxWidth / w; layout(); }
       }
     }
 

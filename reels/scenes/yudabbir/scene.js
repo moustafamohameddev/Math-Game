@@ -9,7 +9,6 @@
     yellow: '#f8d52a', hill: '#2b2219', hatch: '#3a3128', house: '#292011', rain: '#6d6259', cloud: '#c3b6a8',
     sun: '#fad42e', tan: '#cea054', ice: '#98abb6', moonW: '#eee5d6',
   };
-  const BRAND = 'your.handle'; // ← اكتب اسم حسابك هنا
   const GLOW = '0 0 10px rgba(248,213,42,.55)';
 
   function boilPath(parent, pts, attrs, seed, opts = {}) {
@@ -116,7 +115,6 @@
     const strokes = [hill, ...walls];
 
     // ================= text =================
-    html('div', { class: 'brand', text: BRAND }, stage);
     const verse = Caption.line({ parent: stage, y: 281, size: 34, font: '"Amiri Quran"', color: C.text, gap: 0.3, fit: 467,
       words: ['﴿', 'يُدَبِّرُ', 'ٱلْأَمْرَ', 'مِنَ', 'ٱلسَّمَآءِ', 'إِلَى', { w: 'ٱلْأَرْضِ', color: C.yellow, glow: GLOW }, '﴾'] });
     const verseEn = Caption.line({ parent: stage, y: 339, size: 19, font: '"Patrick Hand"', color: C.en, dir: 'ltr', gap: 0.3, fit: 440,

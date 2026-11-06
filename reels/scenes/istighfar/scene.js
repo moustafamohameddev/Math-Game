@@ -9,7 +9,6 @@
     line: '#9aa3ab', cloudFill: '#18233b', cloud: '#6b7690', rain: '#8a9ab5', gray: '#8a93a8', leaf: '#8fa582',
     rockFill: '#111b30', rock: '#8792ac', stairFill: '#16213a', stairHatch: '#26344f', stairLine: '#e6e2d8',
   };
-  const BRAND = 'your.handle'; // ← اكتب اسم حسابك هنا
   const GLOW = '0 0 10px rgba(252,213,37,.55)';
   const DOT = { x: 360, y: 703 };
 
@@ -89,7 +88,6 @@
     const icons = [{ g: iFlower, a: -71, t0: 9.6 }, { g: iShield, a: 49, t0: 9.8 }, { g: iStairs, a: 168, t0: 9.95 }];
 
     // ---------------- text ----------------
-    html('div', { class: 'brand', text: BRAND }, stage);
     const title = Caption.line({ parent: stage, y: 312, size: 52, font: 'Amiri', weight: 700, color: C.yellow, fit: 182, words: [{ w: 'الاستغفار', glow: '0 0 14px rgba(252,213,37,.5)' }] });
     const sub = Caption.letters({ parent: stage, text: 'Istighfar · seeking forgiveness', y: 367, font: '"Patrick Hand"', size: 20.5, color: C.sub });
     const AR = { font: 'Amiri', weight: 700, color: C.cream, gap: 0.42 };

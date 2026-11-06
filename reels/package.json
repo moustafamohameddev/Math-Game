@@ -7,7 +7,8 @@
     "start": "node server.js",
     "render": "node scripts/render.js",
     "compare": "node scripts/compare.js",
-    "extract-audio": "node scripts/extract-audio.js"
+    "extract-audio": "node scripts/extract-audio.js",
+    "daily": "node scripts/daily.js"
   },
   "engines": {
     "node": ">=18"

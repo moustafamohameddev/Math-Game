@@ -3,24 +3,27 @@
  *   npm run render -- sabr
  *   npm run render -- sabr --audio original   (uses media/sabr.m4a)
  *   npm run render -- all
+ *   npm run render -- daily:tawakkul          (one of the daily scripts)
  * Options: --fps 30  --audio synth|original|none  --out output/<id>.mp4 */
 'use strict';
 const { SCENES, ROOT, args, need, openScene, path, fs, spawn } = require('./lib');
 
-async function renderOne(id, a) {
+async function renderOne(id, a = {}) {
   const { page, info, close } = await openScene(id);
   const fps = Number(a.fps) || info.fps;
   const frames = Math.round(info.duration * fps);
   const outDir = path.join(ROOT, 'output');
   fs.mkdirSync(outDir, { recursive: true });
-  const out = path.resolve(a.out && a._.length === 1 ? a.out : path.join(outDir, `${id}.mp4`));
+  const name = id.replace(/^daily:/, 'daily-');
+  const out = path.resolve(a.out && (!a._ || a._.length === 1) ? a.out : path.join(outDir, `${name}.mp4`));
+  fs.mkdirSync(path.dirname(out), { recursive: true });
 
   // ---- audio track ----
   const mode = a.audio || 'synth';
   let audioFile = null;
   if (mode === 'synth') {
     const b64 = await page.evaluate(() => window.__reel.audioWav());
-    audioFile = path.join(outDir, `${id}.synth.wav`);
+    audioFile = path.join(outDir, `${name}.synth.wav`);
     fs.writeFileSync(audioFile, Buffer.from(b64, 'base64'));
   } else if (mode === 'original') {
     const cand = ['m4a', 'mp3', 'wav'].map((e) => path.join(ROOT, 'media', `${id}.${e}`)).find((f) => fs.existsSync(f));
@@ -51,9 +54,13 @@ async function renderOne(id, a) {
   console.log(`\r${id}: ${frames} frames in ${((Date.now() - t0) / 1000).toFixed(1)}s -> ${path.relative(process.cwd(), out)}`);
 }
 
-(async () => {
-  need('ffmpeg');
-  const a = args();
-  const ids = !a._.length || a._[0] === 'all' ? SCENES : a._;
-  for (const id of ids) await renderOne(id, a);
-})().catch((e) => { console.error(e); process.exit(1); });
+module.exports = { renderOne };
+
+if (require.main === module) {
+  (async () => {
+    need('ffmpeg');
+    const a = args();
+    const ids = !a._.length || a._[0] === 'all' ? SCENES : a._;
+    for (const id of ids) await renderOne(id, a);
+  })().catch((e) => { console.error(e); process.exit(1); });
+}

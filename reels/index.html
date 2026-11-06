@@ -44,6 +44,29 @@
       <div class="meta"><span>720×1280</span><span>13.0 ث</span></div>
     </a>
   </div>
+  <h1 style="margin-top:36px">فيديو كل يوم</h1>
+  <p class="lead">سكريبتات جاهزة في <code>daily/scripts.js</code>، وكل يوم ليه فيديو. صدّر فيديو النهارده بـ <code>npm run daily</code></p>
+  <div class="grid" id="daily"></div>
   <p class="lead" style="margin-top:28px">للتصدير كفيديو MP4: <code>npm run render -- all</code></p>
+  <script src="daily/scripts.js"></script>
+  <script>
+    (function () {
+      var C = { light: ['#fcfcfc', '#351f00', '#615e58'], brown: ['#1e140b', '#f8d52a', '#9f9286'], navy: ['#060f1f', '#fcd525', '#8c96ac'] };
+      var start = Date.parse(DAILY.start + 'T00:00:00Z'), grid = document.getElementById('daily');
+      var now = new Date(), todayIdx = Math.floor((Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - start) / 864e5);
+      DAILY.scripts.forEach(function (s, i) {
+        var c = s.template === 'calligraphy' ? ['#00212b', '#f1e7d5', '#d9bd83'] : C[s.theme] || C.light;
+        var day = new Date(start + i * 864e5).toISOString().slice(0, 10);
+        var a = document.createElement('a');
+        a.className = 'card'; a.href = 'scenes/daily/index.html?s=' + encodeURIComponent(s.id);
+        if (i === ((todayIdx % DAILY.scripts.length) + DAILY.scripts.length) % DAILY.scripts.length) a.style.borderColor = '#fade61';
+        a.innerHTML = '<div class="thumb" style="aspect-ratio:9/8;background:' + c[0] + ';color:' + c[1] + '"><span class="ar" style="font-size:30px"></span><span class="en" style="color:' + c[2] + ';font-size:16px"></span></div><div class="meta"><span></span><span></span></div>';
+        a.querySelector('.ar').textContent = s.title;
+        a.querySelector('.en').textContent = s.subtitle || (s.ref || '');
+        var m = a.querySelectorAll('.meta span'); m[0].textContent = (i + 1) + ' · ' + s.id; m[1].textContent = day;
+        grid.appendChild(a);
+      });
+    })();
+  </script>
 </body>
 </html>

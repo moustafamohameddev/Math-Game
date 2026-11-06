@@ -9,7 +9,6 @@
     hl: '#fade61', sand: '#e5ac15', stream: '#e9b632', plate: '#ede1cd', hatch: '#d9cbb2',
     petal: '#f8d22c', center: '#efa417', leaf: '#a3a679', glow: '250,214,80',
   };
-  const BRAND = 'your.handle'; // ← اكتب اسم حسابك هنا
 
   // ---------- hourglass geometry ----------
   const CX = 360, TOP = 481, NECK = 598, BOT = 703;
@@ -155,7 +154,6 @@
     ];
 
     // ---- text ----
-    const brand = html('div', { class: 'brand', text: BRAND }, stage);
     const titleHl = html('div', { class: 'title-hl' }, stage);
     const title = html('div', { class: 'title', text: 'الصبر', dir: 'rtl' }, stage);
     const sub = Caption.letters({ parent: stage, text: 'Sabr · patience', y: 377, font: '"Patrick Hand"', size: 23, color: C.sub });
