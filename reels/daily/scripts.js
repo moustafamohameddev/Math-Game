@@ -13,12 +13,12 @@
  *
  * sabr / yudabbir / istighfar / alhamdulillah: نفس شكل الفيديوهات الأصلية الأربعة، بنص جديد.
  *
- * calligraphy (خط عربي متحرك):
+ * alhamdulillah (خط عربي عرضي زي «الحمد لله»):
  *   base     : الجملة الأساسية، و ~ مكان المدّ (الكشيدة)
- *   sections : كل قسم سطرين/ثلاثة بيظهروا تحت الجملة الأساسية
+ *   sections : 4 أقسام، كل قسم كلماته بتظهر حوالين الجملة الأساسية
  *   ref      : المصدر
  *
- * brand: اسم حسابك، بيظهر فوق في كل فيديو (وتحت في فيديوهات الخط).
+ * brand: اسم حسابك، بيظهر على كل فيديو.
  *
  * راجع نص أي آية أو حديث قبل النشر. */
 (function (root) {
@@ -58,11 +58,6 @@
           { ar: 'فهو *يسمعك*', en: 'for He *hears* you', art: 'lantern' },
         ],
         verse: { ar: 'وَقَالَ رَبُّكُمُ ادْعُونِي *أَسْتَجِبْ* لَكُمْ', en: '“And your Lord said: Call upon Me, I will *respond* to you”', ref: 'سورة غافر، آية ٦٠' } },
-
-      { id: 'subhan-bihamdih', template: 'calligraphy', title: 'سبحان الله وبحمده',
-        base: 'سُبْحَ~انَ اللَّهِ وَبِحَمْدِهِ',
-        sections: [['عَدَدَ خَلْقِهِ', 'وَرِضَا نَفْسِهِ'], ['وَزِنَةَ عَرْشِهِ', 'وَمِدَادَ كَلِمَاتِهِ']],
-        ref: 'رواه مسلم' },
 
       { id: 'qareeb', template: 'illustrated', theme: 'brown', title: 'إنّي قريب', subtitle: 'He is near',
         beats: [
@@ -104,11 +99,6 @@
         ],
         verse: { ar: 'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ *مَخْرَجًا*', en: '“And whoever fears Allah, He will make for him a *way out*”', ref: 'سورة الطلاق، آية ٢' } },
 
-      { id: 'la-hawla', template: 'calligraphy', title: 'لا حول ولا قوة إلا بالله',
-        base: 'لَا حَ~وْلَ وَلَا قُوَّةَ',
-        sections: [['إِلَّا بِاللَّهِ'], ['كَنْزٌ مِنْ كُنُوزِ الْجَنَّةِ']],
-        ref: 'متفق عليه' },
-
       { id: 'rizq', template: 'illustrated', theme: 'light', title: 'الرزق', subtitle: 'Rizq · provision',
         beats: [
           { ar: 'رزقك *مكتوب*...', en: 'Your provision is *written*...', art: 'rain' },
@@ -140,11 +130,6 @@
           { ar: 'فلا *تخف*', en: 'so do not *fear*', art: 'heart' },
         ],
         verse: { ar: 'وَنَحْنُ *أَقْرَبُ* إِلَيْهِ مِنْ حَبْلِ الْوَرِيدِ', en: '“And We are *closer* to him than his jugular vein”', ref: 'سورة ق، آية ١٦' } },
-
-      { id: 'baqiyat', template: 'calligraphy', title: 'أحب الكلام إلى الله',
-        base: 'سُبْحَ~انَ اللَّهِ',
-        sections: [['وَالْحَمْدُ لِلَّهِ', 'وَلَا إِلَهَ إِلَّا اللَّهُ'], ['وَاللَّهُ أَكْبَرُ', 'أَحَبُّ الْكَلَامِ إِلَى اللَّهِ']],
-        ref: 'رواه مسلم' },
 
       { id: 'tarda', template: 'illustrated', theme: 'light', title: 'فترضى', subtitle: 'Until you are content',
         beats: [
@@ -186,11 +171,6 @@
         ],
         verse: { ar: 'وَأَحْسِنُوا إِنَّ اللَّهَ *يُحِبُّ* الْمُحْسِنِينَ', en: '“And do good; indeed Allah *loves* the doers of good”', ref: 'سورة البقرة، آية ١٩٥' } },
 
-      { id: 'afw', template: 'calligraphy', title: 'اللهم إنك عفو',
-        base: 'اللَّهُمَّ إِنَّكَ عَفُوٌّ',
-        sections: [['تُحِبُّ الْعَفْوَ'], ['فَاعْفُ عَنِّي']],
-        ref: 'رواه الترمذي' },
-
       { id: 'rawh', template: 'illustrated', theme: 'brown', title: 'لا تيأس', subtitle: 'Never lose hope',
         beats: [
           { ar: 'مهما طال *الليل*...', en: 'However long the *night*...', art: 'moon' },
@@ -223,11 +203,6 @@
         ],
         verse: { ar: 'وَقُل رَّبِّ زِدْنِي *عِلْمًا*', en: '“And say: My Lord, increase me in *knowledge*”', ref: 'سورة طه، آية ١١٤' } },
 
-      { id: 'muqallib', template: 'calligraphy', title: 'يا مقلب القلوب',
-        base: 'يَا مُقَلِّبَ الْقُلُوبِ',
-        sections: [['ثَبِّتْ قَلْبِي'], ['عَلَى دِينِكَ']],
-        ref: 'رواه الترمذي' },
-
       { id: 'sadr', template: 'illustrated', theme: 'light', title: 'اشرح لي صدري', subtitle: 'Expand my chest',
         beats: [
           { ar: 'قبل كل *بداية*...', en: 'Before every *beginning*...', art: 'stairs' },
@@ -251,11 +226,6 @@
           { ar: 'كقطرة *تُحيي* زهرة', en: 'like a drop that *revives* a flower', art: 'flower' },
         ],
         verse: { ar: 'اللَّهُ *لَطِيفٌ* بِعِبَادِهِ', en: '“Allah is *Subtle* with His servants”', ref: 'سورة الشورى، آية ١٩' } },
-
-      { id: 'hasbiyallah', template: 'calligraphy', title: 'حسبي الله',
-        base: 'حَسْبِيَ اللَّهُ',
-        sections: [['لَا إِلَهَ إِلَّا هُوَ', 'عَلَيْهِ تَوَكَّلْتُ'], ['وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ']],
-        ref: 'سورة التوبة، آية ١٢٩' },
 
       { id: 'akhira', template: 'illustrated', theme: 'light', title: 'الآخرة', subtitle: 'What truly lasts',
         beats: [
@@ -343,11 +313,6 @@
         ],
         verse: { ar: 'إِنَّ اللَّهَ مَعَ *الصَّابِرِينَ*', en: '“Indeed, Allah is with the *patient*”', ref: 'سورة البقرة، آية ١٥٣' } },
 
-      { id: 'kalimatan', template: 'calligraphy', title: 'كلمتان خفيفتان',
-        base: 'كَلِمَتَانِ خَفِيفَتَانِ',
-        sections: [['عَلَى اللِّسَانِ', 'ثَقِيلَتَانِ فِي الْمِيزَانِ'], ['حَبِيبَتَانِ إِلَى الرَّحْمَنِ'], ['سُبْحَانَ اللَّهِ وَبِحَمْدِهِ', 'سُبْحَانَ اللَّهِ الْعَظِيمِ']],
-        ref: 'متفق عليه' },
-
       { id: 'nur', template: 'illustrated', theme: 'navy', title: 'النور', subtitle: 'Nur · His light',
         beats: [
           { ar: 'في كل *ظلمة*...', en: 'In every *darkness*...', art: 'moon' },
@@ -380,11 +345,6 @@
         ],
         verse: { ar: 'إِنَّ اللَّهَ لَا يُضِيعُ *أَجْرَ* الْمُحْسِنِينَ', en: '“Indeed, Allah does not let the *reward* of the doers of good be lost”', ref: 'سورة التوبة، آية ١٢٠' } },
 
-      { id: 'dhun-nun', template: 'calligraphy', title: 'دعاء ذي النون',
-        base: 'لَا إِلَهَ إِلَّا أَنْتَ',
-        sections: [['سُبْحَانَكَ'], ['إِنِّي كُنْتُ مِنَ الظَّالِمِينَ']],
-        ref: 'سورة الأنبياء، آية ٨٧' },
-
       { id: 'faraj', template: 'illustrated', theme: 'brown', title: 'الفَرَج', subtitle: 'Relief is coming',
         beats: [
           { ar: 'الشدّة *مؤقتة*...', en: 'Hardship is *temporary*...', art: 'rain' },
@@ -409,10 +369,6 @@
         ],
         verse: { ar: 'وَرَحْمَتِي *وَسِعَتْ* كُلَّ شَيْءٍ', en: '“And My mercy *encompasses* all things”', ref: 'سورة الأعراف، آية ١٥٦' } },
 
-      { id: 'rabbana-atina', template: 'calligraphy', title: 'ربنا آتنا',
-        base: 'رَبَّنَا آتِنَا',
-        sections: [['فِي الدُّنْيَا حَسَنَةً', 'وَفِي الْآخِرَةِ حَسَنَةً'], ['وَقِنَا عَذَابَ النَّارِ']],
-        ref: 'سورة البقرة، آية ٢٠١' },
     ],
   };
 

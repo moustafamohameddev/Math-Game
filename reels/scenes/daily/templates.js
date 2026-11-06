@@ -1,7 +1,7 @@
 /* Daily reel templates. A script (see daily/scripts.js) is turned into a full
  * Reel config: layout, timing and sound design are all derived from the text.
- *   illustrated  — the style of «الصبر» / «يدبّر الأمر» / «الاستغفار» (720×1280)
- *   calligraphy  — the style of «الحمد لله», vertical (720×1280) */
+ *   illustrated  — generic illustrated reel (720×1280)
+ *   sabr | yudabbir | istighfar | alhamdulillah — the four original reels with new text */
 (function (global) {
   'use strict';
   const { svg, html, prog, ease, clamp, lerp, rng } = R;
@@ -181,102 +181,6 @@
   }
 
   // =====================================================================
-  // calligraphy (vertical version of «الحمد لله»)
-  // =====================================================================
-  function calligraphy(sc) {
-    const W = 720, H = 1280;
-    const CREAM = { bg: '#f0ead7', text: '#02222d', line: '#02222d', ghost: '#fbf8ee', shadow: 'drop-shadow(5px 6px 4px rgba(20,30,30,.34))' };
-    const TEAL = { bg: '#00212b', text: '#f1e7d5', line: '#d9bd83', ghost: '#062a35', shadow: 'drop-shadow(5px 6px 5px rgba(0,0,0,.55))' };
-    // section 0 = the base phrase alone; then each section adds its lines
-    const secs = [{ lines: [], theme: CREAM }];
-    sc.sections.forEach((s, i) => secs.push({ lines: s, theme: i % 2 === 0 ? TEAL : CREAM }));
-    let t = 0;
-    secs.forEach((s, i) => {
-      s.start = t;
-      s.len = i === 0 ? 1.6 : 0.55 + s.lines.length * 1.0 + 1.6;
-      t += s.len;
-    });
-    const last = secs[secs.length - 1];
-    last.len += 1.6;
-    const duration = +(t + 1.6).toFixed(2);
-    secs.forEach((s, i) => { s.end = s.start + s.len; s.trans = i === 0 ? null : i % 2 ? 'blinds' : 'iris'; });
-
-    function setup(stage) {
-      const layers = secs.map((s) => {
-        const g = html('div', {}, stage);
-        Object.assign(g.style, { position: 'absolute', inset: '0', background: s.theme.bg, overflow: 'hidden' });
-        const root = svg('svg', { width: W, height: H, viewBox: `0 0 ${W} ${H}` }, g);
-        const ghost = svg('g', { opacity: 0.6, style: 'filter:blur(10px)' }, root);
-        Calli.phrase(ghost, sc.base.replace('~', ''), [40, 680, 150, 290], { fill: s.theme.ghost });
-        Calli.phrase(ghost, sc.base.replace('~', ''), [20, 700, 1010, 1160], { fill: s.theme.ghost });
-        const baseG = svg('g', { style: `filter:${s.theme.shadow}` }, root);
-        Calli.phrase(baseG, sc.base, [70, 650, 420, 560], { fill: s.theme.text });
-        const lines = s.lines.map((txt, k) => {
-          const lg = svg('g', { style: `filter:${s.theme.shadow}` }, root);
-          const y = 625 + k * 135;
-          Calli.phrase(lg, txt, [130, 590, y, y + 82], { fill: s.theme.line, hScale: 1.25 });
-          return lg;
-        });
-        let refEl = null;
-        if (s === last && sc.ref) {
-          refEl = svg('text', { x: 360, y: 1130, 'text-anchor': 'middle', direction: 'rtl', 'font-family': 'Amiri', 'font-size': 26, fill: s.theme === TEAL ? '#9fb3b5' : '#7c7a70' }, root);
-          refEl.textContent = sc.ref;
-        }
-        return { s, g, baseG, lines, refEl };
-      });
-      const brandEl = html('div', {}, stage);
-      Object.assign(brandEl.style, { position: 'absolute', inset: '0', pointerEvents: 'none' });
-      const brandC = brandMark(brandEl, 1222, '#8b8a80', '#d9bd83', 0.2);
-      const bars = html('div', {}, stage);
-      Object.assign(bars.style, { position: 'absolute', inset: '0', pointerEvents: 'none' });
-      const barEls = Array.from({ length: 10 }, () => { const b = html('div', {}, bars); Object.assign(b.style, { position: 'absolute', left: '0', width: W + 'px', background: '#010002', display: 'none' }); return b; });
-      const setBars = (list) => barEls.forEach((b, i) => {
-        const r = list[i];
-        if (!r || r[1] <= r[0]) { b.style.display = 'none'; return; }
-        b.style.display = 'block'; b.style.top = r[0] + 'px'; b.style.height = r[1] - r[0] + 'px';
-      });
-
-      return {
-        render(t) {
-          layers.forEach((L) => {
-            const s = L.s, on = t >= s.start && (t < s.end || s === last);
-            L.g.style.display = on ? 'block' : 'none';
-            if (!on) return;
-            const inA = ease.inOutQuad(prog(t, s.start + 0.08, s.start + 0.45));
-            const outA = s === last ? 1 : 1 - ease.inOutQuad(prog(t, s.end - 0.5, s.end - 0.05));
-            L.baseG.style.opacity = (inA * outA).toFixed(3);
-            L.lines.forEach((lg, k) => {
-              const at = s.start + 0.55 + k * 1.0;
-              const q = ease.outQuad(prog(t, at, at + 0.3));
-              lg.style.opacity = (q * outA).toFixed(3);
-              const b = 6 * (1 - q);
-              lg.style.filter = `${s.theme.shadow}${b > 0.05 ? ` blur(${b.toFixed(2)}px)` : ''}`;
-            });
-            if (L.refEl) L.refEl.setAttribute('opacity', ease.outQuad(prog(t, duration - 2.6, duration - 2.1)).toFixed(3));
-          });
-          brandC.render(t);
-          const cur = secs.find((s) => s.trans && t >= s.start && t < s.start + 0.6);
-          if (!cur) setBars([]);
-          else if (cur.trans === 'blinds') setBars(Calli.blinds(H, 140, 320, Math.max(3, (t - cur.start) * 1100)));
-          else { const h = 30 + (t - cur.start) * 2600; setBars([[0, Math.max(0, H / 2 - h)], [Math.min(H, H / 2 + h), H]]); }
-        },
-      };
-    }
-
-    function sounds() {
-      const chords = [[146.83, 220, 293.66], [130.81, 196, 261.63], [110, 164.81, 220, 277.18], [146.83, 220, 293.66]];
-      const ev = [{ t: 0.0, type: 'pad', dur: secs[0].len + 0.1, gain: -18, notes: chords[0] }];
-      secs.slice(1).forEach((s, i) => {
-        ev.push({ t: s.start - 0.08, type: 'whoosh', dur: 0.45, gain: -10 });
-        ev.push({ t: s.start + 0.05, type: 'pad', dur: s.len + (s === last ? 1.4 : 0.1), gain: -18, notes: chords[(i + 1) % chords.length] });
-        s.lines.forEach((_, k) => ev.push({ t: s.start + 0.55 + k * 1.0, type: 'twinkle', dur: 0.3, gain: -16, density: 12 }));
-      });
-      return ev;
-    }
-    return { width: W, height: H, duration, background: CREAM.bg, setup, sounds };
-  }
-
-  // =====================================================================
   // helpers used by the four original reels in "variant" mode
   // (same visuals as the originals, new text from a script)
   // =====================================================================
@@ -330,7 +234,7 @@
       document.body.appendChild(s);
       return;
     }
-    const cfg =(sc.template === 'calligraphy' ? calligraphy : illustrated)(sc);
+    const cfg = illustrated(sc);
     Reel.run(Object.assign(cfg, {
       id: 'daily-' + sc.id, title: sc.title || sc.base.replace('~', ''), fps: 30,
       fonts: ['700 40px Amiri', '400 40px Amiri', '400 40px "Amiri Quran"', '400 20px "Patrick Hand"', '500 17px Inter'],
@@ -338,5 +242,5 @@
   }
 
   const FONTS = ['700 40px Amiri', '400 40px Amiri', '400 40px "Amiri Quran"', '400 20px "Patrick Hand"', '500 17px Inter'];
-  global.Templates = { THEMES, illustrated, calligraphy, run, pick, words, countHl, brandMark, beatTimes, autoCaps, ticksFor, FONTS };
+  global.Templates = { THEMES, illustrated, run, pick, words, countHl, brandMark, beatTimes, autoCaps, ticksFor, FONTS };
 })(window);

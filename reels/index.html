@@ -55,7 +55,7 @@
       var start = Date.parse(DAILY.start + 'T00:00:00Z'), grid = document.getElementById('daily');
       var now = new Date(), todayIdx = Math.floor((Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - start) / 864e5);
       DAILY.scripts.forEach(function (s, i) {
-        var c = s.template === 'calligraphy' ? ['#00212b', '#f1e7d5', '#d9bd83'] : C[s.theme] || C.light;
+        var c = s.template === 'alhamdulillah' ? ['#00212b', '#f1e7d5', '#d9bd83'] : s.template === 'sabr' ? C.light : s.template === 'yudabbir' ? C.brown : s.template === 'istighfar' ? C.navy : C[s.theme] || C.light;
         var day = new Date(start + i * 864e5).toISOString().slice(0, 10);
         var a = document.createElement('a');
         a.className = 'card'; a.href = 'scenes/daily/index.html?s=' + encodeURIComponent(s.id);
