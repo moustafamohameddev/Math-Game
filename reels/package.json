@@ -1,0 +1,19 @@
+{
+  "name": "reels",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Frame-accurate HTML/JavaScript recreations of four short illustrated reels, with procedural Web Audio sound effects.",
+  "scripts": {
+    "start": "node server.js",
+    "render": "node scripts/render.js",
+    "compare": "node scripts/compare.js",
+    "extract-audio": "node scripts/extract-audio.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "optionalDependencies": {
+    "playwright": "^1.47.0"
+  },
+  "license": "MIT"
+}

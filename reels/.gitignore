@@ -1,0 +1,6 @@
+node_modules/
+output/
+compare/
+# Original soundtracks extracted with `npm run extract-audio` stay on your machine
+media/*
+!media/.gitkeep
