@@ -24,8 +24,24 @@ function today(tz) {
   return parts;
 }
 
+// Counter reels («مئة قطرة» type): every day a new dhikr × story-world combination.
+const DHIKR = [['istighfar-100', 33], ['tasbih-33', 33], ['hamd-33', 33], ['salawat-50', 50], ['tahlil-33', 33]];
+const WORLDS = ['palms', 'desert', 'lanterns', 'roses', 'tree'];
+function counterFor(dateStr) {
+  const i = Math.floor((Date.parse(dateStr + 'T00:00:00Z') - Date.parse('2026-11-12T00:00:00Z')) / DAY);
+  const k = ((i % 25) + 25) % 25, d = DHIKR[k % 5], w = WORLDS[(k + Math.floor(k / 5) * 2) % 5];
+  return { target: `qatra:${d[0]}@${w}@${d[1]}`, name: `${d[0].replace(/-\d+$/, '')}-${w}` };
+}
+
 (async () => {
   const a = args();
+  if (a.counter) {
+    need('ffmpeg');
+    const { renderOne } = require('./render');
+    const date = a.date || today(a.tz || 'Africa/Cairo'), c = counterFor(date);
+    await renderOne(c.target, { out: path.join(ROOT, 'output', 'daily', `${date}-${c.name}.mp4`) });
+    return;
+  }
   const tz = a.tz || process.env.TZ_DAILY || 'Africa/Cairo';
   if (a.list) {
     const start = Date.parse(DAILY.start + 'T00:00:00Z');

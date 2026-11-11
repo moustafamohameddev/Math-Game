@@ -11,7 +11,8 @@
   // script (see scripts.js): ?s=<id>. The world always plays its 100-drop story; with a
   // smaller count it simply unfolds faster, while the counter still ticks once a second.
   const SC = (window.QATRA_SCRIPTS || []).find((x) => x.id === new URLSearchParams(location.search).get('s')) || (window.QATRA_SCRIPTS || [{}])[0] || {};
-  const N = SC.count || 100, K = 100 / N, TEND = 5.033 + N, DUR = N + 13.1;
+  const QS = new URLSearchParams(location.search), STORYNAME = (QS.get('story') || SC.story || 'desert');
+  const N = +QS.get('count') || SC.count || 100, K = 100 / N, TEND = 5.033 + N, DUR = N + 13.1;
   const TICK = (n) => 5.033 + n;                       // counter shows n from this moment (real time)
   const wtime = (t) => (t <= 5.033 ? t : t <= TEND ? 5.033 + (t - 5.033) * K : 105.033 + (t - TEND));   // real → story time
   const rtime = (w) => (w <= 5.033 ? w : w <= 105.033 ? 5.033 + (w - 5.033) / K : TEND + (w - 105.033));
@@ -41,11 +42,12 @@
   ];
   const MN = [1, 2, 3, 4].map((k) => Math.round((N * k) / 4));
   const VERSES = SC.miles ? SC.miles.map((m, i) => ({ n: MN[i], ar: m.v, gold: m.gold, en: m.t, ref: m.ref })) : VERSES0.map((v, i) => Object.assign(v, { n: MN[i] }));
-  const ML = SC.miles ? SC.miles.map((m) => [m.ar, m.en]) : [['المطر', 'Rain'], ['الجنات', 'Gardens'], ['الأنهار', 'Rivers'], ['المغفرة', 'Forgiveness']];
+  const ML = { desert: [['المطر', 'Rain'], ['الجنات', 'Gardens'], ['الأنهار', 'Rivers'], ['المغفرة', 'Forgiveness']], palms: [['الغرس', 'Planting'], ['النخيل', 'Palms'], ['الليل', 'Night'], ['النور', 'Light']], lanterns: [['النور', 'Light'], ['الزيادة', 'Increase'], ['الشكر', 'Gratitude'], ['الرضا', 'Contentment']], roses: [['البذرة', 'Seed'], ['الورد', 'Roses'], ['العطر', 'Fragrance'], ['الرحمة', 'Mercy']], tree: [['البذرة', 'Seed'], ['الجذر', 'Root'], ['الفروع', 'Branches'], ['الثمر', 'Fruit']] }[STORYNAME];
   const MILE = MN.map((n, i) => [n, 490 - 130 * i, ML[i][0], ML[i][1]]);
   const TXT = Object.assign({ brandAr: 'مئة قطرة', brandEn: '100 Drops · Astaghfirullah', intro1: ['قبل أن', 'تُكمل', 'التمرير...'], introBig: '100 اســتغفار', introEn: '100 × Astaghfirullah', introSub: 'One drop for each — say it with us.',
     title: 'أَســـتَغْفِرُ اللهَ', titleEn: 'Astaghfirullah', titleSub: 'I seek Allah’s forgiveness', endBig: '100 قطرة', endEn: '100 drops',
     endText: 'The Prophet (peace be upon him) sought Allah’s forgiveness a hundred times a day.', endRef: '— Sahih Muslim 2702 —', endAr: 'احفظه · وردّده غدًا', endSub: 'Save this · say it again tomorrow' }, SC);
+  if (!SC.title && N !== 100) { ['brandEn', 'introBig', 'introEn', 'endBig', 'endEn'].forEach((k) => { TXT[k] = TXT[k].replace('100', N); }); TXT.brandAr = 'قطرات الاستغفار'; }
 
   function setup(stage) {
     const cv = html('canvas', { width: W, height: H }, stage);
@@ -209,7 +211,7 @@
         pre(p, t) { g.strokeStyle = '#6b4a2e'; g.lineCap = 'round'; g.lineWidth = 16 + 16 * p; g.beginPath(); g.moveTo(360, 1010); g.quadraticCurveTo(350, 900, 360, 1010 - (90 + 150 * p)); g.stroke();
           g.lineWidth = 8; [[-1, 0.55], [1, 0.7], [-1, 0.85]].forEach(([d, f]) => { if (p > f - 0.4) { g.beginPath(); g.moveTo(358, 1010 - (90 + 150 * p) * f); g.lineTo(358 + d * 110 * Math.min(1, p * 1.4), 1010 - (90 + 150 * p) * f - 60); g.stroke(); } }); },
         item(x, y, k, q) { const r = 30 * q, gr = g.createRadialGradient(x - r * 0.35, y - r * 0.4, r * 0.1, x, y, r); gr.addColorStop(0, '#9cc474'); gr.addColorStop(0.5, '#6fa655'); gr.addColorStop(1, '#3f7639'); g.fillStyle = gr; ell(x, y, r, r); g.fill(); } },
-    }[SC.story];
+    }[STORYNAME];
     const sStars = []; for (let i = 0; i < 90; i++) sStars.push([sr() * 720, 380 + sr() * 420, 0.6 + sr() * 1.6, sr() * 6]);
     function storyWorld(rt) {
       const n = clamp(Math.floor(rt - 5.033), 0, N), p = clamp((rt - 5.033) / N), z = 1 + 0.07 * p;
@@ -265,7 +267,7 @@
         g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, W, H);
         if (STORY) storyWorld(rt);
         else { g.setTransform(cam.s, 0, 0, cam.s, cam.x - P[0] * cam.s, cam.y - P[1] * cam.s); world(t, rt); g.setTransform(1, 0, 0, 1, 0, 0); drops(rt, cam); }
-        if (PAL && !STORY) { g.globalCompositeOperation = 'soft-light'; g.fillStyle = rgba(PAL, PAL[3] * 2.2); g.fillRect(0, 0, W, H); g.globalCompositeOperation = 'source-over'; g.fillStyle = rgba(PAL, PAL[3] * 0.35); g.fillRect(0, 0, W, H); }
+        if (PAL && !STORY && false) { g.globalCompositeOperation = 'soft-light'; g.fillStyle = rgba(PAL, PAL[3] * 2.2); g.fillRect(0, 0, W, H); g.globalCompositeOperation = 'source-over'; g.fillStyle = rgba(PAL, PAL[3] * 0.35); g.fillRect(0, 0, W, H); }
         const hz = g.createLinearGradient(0, 0, 0, 640); hz.addColorStop(0, 'rgba(221,212,196,.96)'); hz.addColorStop(0.45, 'rgba(220,208,188,.82)'); hz.addColorStop(0.68, 'rgba(220,206,184,.5)'); hz.addColorStop(0.84, 'rgba(220,204,180,.18)'); hz.addColorStop(1, 'rgba(220,204,180,0)');
         g.fillStyle = hz; g.fillRect(0, 0, W, 640);
         g.globalCompositeOperation = 'overlay'; g.fillStyle = g.createPattern(grain, 'repeat'); g.fillRect(0, 0, W, H); g.globalCompositeOperation = 'source-over';
@@ -307,7 +309,7 @@
   // ---------------- sound ----------------
   function sounds() {
     const ev = [{ t: 0.3, type: 'swell', dur: 1.3, rise: 0.9, gain: -16, low: 70 }, { t: 0.4, type: 'bed', dur: DUR - 1.2, gain: -40, low: 300, high: 2500 },
-      ...(SC.story ? [] : [{ t: rtime(27.6), type: 'swell', dur: 2.6, rise: 0.5, gain: -4, low: 42, body: 1.6 }, { t: rtime(27.9), type: 'rain', dur: 7.9 / K, gain: -24, density: 14, dropGain: -30 }]),
+      ...(STORYNAME !== 'desert' ? [] : [{ t: rtime(27.6), type: 'swell', dur: 2.6, rise: 0.5, gain: -4, low: 42, body: 1.6 }, { t: rtime(27.9), type: 'rain', dur: 7.9 / K, gain: -24, density: 14, dropGain: -30 }]),
       { t: 5.0, type: 'whoosh', dur: 1.2, rise: 0.7, gain: -18 }];
     for (let n = 1; n <= N; n++) { const t = TICK(n) + 0.24; ev.push({ t, type: 'pop', gain: -11, freq: 1250 + (n % 3) * 120 }, { t: t + 0.01, type: 'tick', gain: -14, freq: 5200, dur: 0.05 }); }
     MN.forEach((n) => ev.push({ t: TICK(n) + 0.1, type: 'swell', dur: 1.0, rise: 0.45, gain: -13, low: 90 }, { t: TICK(n) + 0.3, type: 'twinkle', dur: 1.1, density: 10, gain: -18 }));
@@ -316,9 +318,9 @@
   }
 
   Reel.run({
-    id: 'qatra' + (SC.id ? '-' + SC.id : ''), title: TXT.brandAr, width: W, height: H, duration: DUR, fps: 30, background: '#000', loop: false,
+    id: 'qatra' + (SC.id ? '-' + SC.id : '') + '-' + STORYNAME, title: TXT.brandAr, width: W, height: H, duration: DUR, fps: 30, background: '#000', loop: false,
     fonts: ['700 40px Amiri', '400 40px Amiri', '400 30px "Amiri Quran"', '400 20px "EB Garamond"', '500 20px "EB Garamond"', '600 20px "Saira Condensed"', '400 26px "Aref Ruqaa"'],
-    original: SC.original || !SC.id ? '../../media/qatra.m4a' : null, preferOriginal: true,
+    original: (SC.original || !SC.id) && STORYNAME === 'desert' && N === 100 ? '../../media/qatra.m4a' : null, preferOriginal: true,
     setup, sounds,
   });
 })();

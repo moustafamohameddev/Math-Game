@@ -14,7 +14,7 @@ async function renderOne(id, a = {}) {
   const frames = Math.round(info.duration * fps);
   const outDir = path.join(ROOT, 'output');
   fs.mkdirSync(outDir, { recursive: true });
-  const name = id.replace(/^daily:/, 'daily-').replace(/^qatra:/, 'qatra-');
+  const name = id.replace(/^daily:/, 'daily-').replace(/^qatra:/, 'qatra-').replace(/@/g, '-');
   const out = path.resolve(a.out && (!a._ || a._.length === 1) ? a.out : path.join(outDir, `${name}.mp4`));
   fs.mkdirSync(path.dirname(out), { recursive: true });
 

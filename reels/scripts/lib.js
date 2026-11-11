@@ -45,7 +45,7 @@ function startServer() {
 
 /** Page path for a target: a scene id, or "daily:<script-id>" for a daily reel. */
 function targetPath(id) {
-  if (id.startsWith('qatra:')) return `/scenes/qatra/index.html?s=${encodeURIComponent(id.slice(6))}&capture=1`;
+  if (id.startsWith('qatra:')) { const [sid, story, count] = id.slice(6).split('@'); return `/scenes/qatra/index.html?s=${encodeURIComponent(sid)}${story ? '&story=' + story : ''}${count ? '&count=' + count : ''}&capture=1`; }
   if (id.startsWith('daily:')) return `/scenes/daily/index.html?s=${encodeURIComponent(id.slice(6))}&capture=1`;
   if (!SCENES.includes(id)) {
     console.error(`Unknown scene "${id}". Choose one of: ${SCENES.join(', ')}, or daily:<script-id>`);
