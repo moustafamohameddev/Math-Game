@@ -6,9 +6,17 @@
   'use strict';
   const { html, prog, ease, clamp, lerp, kf, rng } = R;
   const D = window.QATRA, P = D.cam.p;
-  const W = 720, H = 1280, DUR = 113.1;
-  const HANDLE = 'mostafamohamed6003';
-  const TICK = (n) => 5.033 + n;                       // counter shows n from this moment
+  const W = 720, H = 1280;
+  const HANDLE = window.QATRA_HANDLE || 'mostafamohamed6003';
+  // script (see scripts.js): ?s=<id>. The world always plays its 100-drop story; with a
+  // smaller count it simply unfolds faster, while the counter still ticks once a second.
+  const SC = (window.QATRA_SCRIPTS || []).find((x) => x.id === new URLSearchParams(location.search).get('s')) || (window.QATRA_SCRIPTS || [{}])[0] || {};
+  const N = SC.count || 100, K = 100 / N, TEND = 5.033 + N, DUR = N + 13.1;
+  const TICK = (n) => 5.033 + n;                       // counter shows n from this moment (real time)
+  const wtime = (t) => (t <= 5.033 ? t : t <= TEND ? 5.033 + (t - 5.033) * K : 105.033 + (t - TEND));   // real → story time
+  const rtime = (w) => (w <= 5.033 ? w : w <= 105.033 ? 5.033 + (w - 5.033) / K : TEND + (w - 105.033));
+  const PAL = { gold: null, emerald: [40, 150, 120, 0.2], rose: [225, 110, 130, 0.2], dusk: [120, 100, 200, 0.22] }[SC.palette || 'gold'];
+  const ACC = { gold: '#b8862b', emerald: '#2f8a6a', rose: '#b5506a', dusk: '#6f5bb0' }[SC.palette || 'gold'];
   const sm = (t, a, b) => ease.inOutQuad(prog(t, a, b));
   const mix = (c1, c2, k) => `rgb(${c1.map((v, i) => Math.round(lerp(v, c2[i], k))).join(',')})`;
   const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
@@ -25,13 +33,19 @@
   const STREAM_L = [[1028, 279, 18], [1045, 281, 46], [1060, 279, 47], [1075, 290, 55], [1090, 302, 54], [1105, 308, 51], [1120, 300, 57], [1135, 287, 62], [1150, 270, 67], [1165, 252, 69], [1180, 235, 68], [1195, 219, 70], [1210, 203, 71], [1225, 189, 70], [1240, 178, 71], [1255, 169, 69], [1270, 160, 70], [1300, 146, 70]];
   const STREAM_R = [[1028, 442, 25], [1045, 455, 40], [1060, 470, 39], [1075, 478, 36], [1090, 470, 41], [1105, 456, 42], [1120, 447, 40], [1135, 451, 42], [1150, 469, 52], [1165, 490, 57], [1180, 514, 56], [1195, 533, 52], [1210, 548, 50], [1225, 560, 50], [1240, 569, 52], [1255, 578, 51], [1270, 587, 53], [1300, 604, 53]];
   const FL = { r: ['#a8232f', '#cf4a57'], w: ['#fbf7ee', '#f0c046'], y: ['#f4d04f', '#e8922e'], o: ['#f2b56b', '#f8dc86'], p: ['#f29aa5', '#f6d27a'], v: ['#b9a0dc', '#f3d27a'] };
-  const VERSES = [
+  const VERSES0 = [
     { n: 25, ar: 'يُرْسِلِ السَّمَاءَ عَلَيْكُم', gold: 'مِّدْرَارًا', en: '“He will send down abundant rain upon you.”', ref: '— Nuh 71:11 —' },
     { n: 50, ar: 'وَيَجْعَل لَّكُمْ', gold: 'جَنَّاتٍ', en: '“…and grant you gardens.”', ref: '— Nuh 71:12 —' },
     { n: 75, ar: 'وَيَجْعَل لَّكُمْ', gold: 'أَنْهَارًا', en: '“…and grant you rivers.”', ref: '— Nuh 71:12 —' },
     { n: 100, ar: 'اسْتَغْفِرُوا رَبَّكُمْ إِنَّهُ كَانَ', gold: 'غَفَّارًا', en: '“Seek your Lord’s forgiveness — He is ever Forgiving.”', ref: '— Nuh 71:10 —' },
   ];
-  const MILE = [[25, 490, 'المطر', 'Rain'], [50, 360, 'الجنات', 'Gardens'], [75, 230, 'الأنهار', 'Rivers'], [100, 100, 'المغفرة', 'Forgiveness']];
+  const MN = [1, 2, 3, 4].map((k) => Math.round((N * k) / 4));
+  const VERSES = SC.miles ? SC.miles.map((m, i) => ({ n: MN[i], ar: m.v, gold: m.gold, en: m.t, ref: m.ref })) : VERSES0.map((v, i) => Object.assign(v, { n: MN[i] }));
+  const ML = SC.miles ? SC.miles.map((m) => [m.ar, m.en]) : [['المطر', 'Rain'], ['الجنات', 'Gardens'], ['الأنهار', 'Rivers'], ['المغفرة', 'Forgiveness']];
+  const MILE = MN.map((n, i) => [n, 490 - 130 * i, ML[i][0], ML[i][1]]);
+  const TXT = Object.assign({ brandAr: 'مئة قطرة', brandEn: '100 Drops · Astaghfirullah', intro1: ['قبل أن', 'تُكمل', 'التمرير...'], introBig: '100 اســتغفار', introEn: '100 × Astaghfirullah', introSub: 'One drop for each — say it with us.',
+    title: 'أَســـتَغْفِرُ اللهَ', titleEn: 'Astaghfirullah', titleSub: 'I seek Allah’s forgiveness', endBig: '100 قطرة', endEn: '100 drops',
+    endText: 'The Prophet (peace be upon him) sought Allah’s forgiveness a hundred times a day.', endRef: '— Sahih Muslim 2702 —', endAr: 'احفظه · وردّده غدًا', endSub: 'Save this · say it again tomorrow' }, SC);
 
   function setup(stage) {
     const cv = html('canvas', { width: W, height: H }, stage);
@@ -99,7 +113,7 @@
       T.fruit.forEach((f) => { const q = ease.outBack(prog(t, f[2], f[2] + 0.35)); if (q <= 0) return; const rr = Math.max(2.2, T.h * 0.033) * q; g.fillStyle = '#d8452f'; ell(f[0], f[1], rr, rr); g.fill(); g.fillStyle = 'rgba(255,170,140,.7)'; ell(f[0] - rr * 0.3, f[1] - rr * 0.3, rr * 0.35, rr * 0.35); g.fill(); });
     }
 
-    function world(t) {
+    function world(t, rt) {
       const gk = sm(t, 40.3, 42.6);                               // desert → garden
       const st = sm(t, 27.4, 28.2) * (1 - sm(t, 34.9, 36.1));     // storm
       // sky
@@ -139,7 +153,7 @@
         g.strokeStyle = 'rgba(215,235,248,.65)'; g.lineWidth = 1.1; for (let k = -3; k <= 3; k++) { g.beginPath(); g.moveTo(180, wy + k * ry * 0.27 + Math.sin(t * 1.3 + k) * 0.8); g.lineTo(540, wy + k * ry * 0.27 + Math.sin(t * 1.3 + k + 2) * 0.8); g.stroke(); }
         soft(359 + wr * 0.45, wy - ry * 0.35, wr * 0.42, ry * 0.3, [255, 255, 255], 0.6);
         // ripples from recent drops
-        for (let n = Math.max(1, Math.floor(t - 5.033) - 1); n <= 100 && TICK(n) + 0.24 <= t; n++) { const u = (t - TICK(n) - 0.24) / 0.9; if (u > 1) continue; g.strokeStyle = `rgba(255,255,255,${0.9 * (1 - u)})`; g.lineWidth = 1.6; ell(P[0] + DROPX[n % 3], wy + 2, 5 + 30 * u, (5 + 30 * u) * 0.3); g.stroke(); }
+        for (let n = Math.max(1, Math.floor(rt - 5.033) - 1); n <= N && TICK(n) + 0.24 <= rt; n++) { const u = (rt - TICK(n) - 0.24) / 0.9; if (u > 1) continue; g.strokeStyle = `rgba(255,255,255,${0.9 * (1 - u)})`; g.lineWidth = 1.6; ell(P[0] + DROPX[n % 3], wy + 2, 5 + 30 * u, (5 + 30 * u) * 0.3); g.stroke(); }
         g.restore();
         g.strokeStyle = 'rgba(70,45,30,.8)'; g.lineWidth = 2; ell(359, wy, wr, ry); g.stroke();
       }
@@ -160,7 +174,7 @@
     }
 
     function drops(t, cam) {
-      const n = Math.floor(t - 5.033 + 0.07); if (n < 1 || n > 100) return;
+      const n = Math.floor(t - 5.033 + 0.07); if (n < 1 || n > N) return;
       const dt = t - TICK(n); if (dt > 0.2425 || t < 5.9) return;
       const wx = P[0] + DROPX[n % 3], sx = (wx - P[0]) * cam.s + cam.x;
       const y0 = Math.max(533, cam.y - 386 * cam.s), y1 = cam.y, f = Math.pow(clamp(dt / 0.2425), 2.3), y = lerp(y0, y1, f), k = cam.s * (dt < 0 ? clamp((dt + 0.07) / 0.05) : 1);
@@ -172,29 +186,31 @@
     // ---------------- UI (HTML) ----------------
     const ui = html('div', { id: 'ui', dir: 'ltr' }, stage);
     ui.innerHTML = `
-      <div class="brandbox"><div class="b-ar" dir="rtl">مئة قطرة</div><div class="b-line"><i></i></div><div class="b-en">100 Drops · Astaghfirullah</div><div class="b-h">${HANDLE}</div></div>
-      <div id="intro"><div class="i1" dir="rtl"><span>قبل أن</span> <span class="gold">تُكمل</span> <span>التمرير...</span></div><div class="i2" dir="rtl">100 اســتغفار</div><div class="rule" style="top:322px;left:134px;width:466px"></div><div class="i3">100 × Astaghfirullah</div><div class="i4">One drop for each — say it with us.</div></div>
-      <div id="main"><div class="title" dir="rtl">أَســـتَغْفِرُ اللهَ</div><div class="rule" style="top:245px;left:165px;width:401px"></div><div class="t-en">Astaghfirullah</div><div class="t-sub">I seek Allah’s forgiveness</div>
-        <div id="dim"><div class="count"><span id="num">0</span><span class="of"> / 100</span></div>
+      <div class="brandbox"><div class="b-ar" dir="rtl">${TXT.brandAr}</div><div class="b-line"><i></i></div><div class="b-en">${TXT.brandEn}</div><div class="b-h">${HANDLE}</div></div>
+      <div id="intro"><div class="i1" dir="rtl"><span>${TXT.intro1[0]}</span> <span class="gold">${TXT.intro1[1]}</span> <span>${TXT.intro1[2]}</span></div><div class="i2" dir="rtl">${TXT.introBig}</div><div class="rule" style="top:322px;left:134px;width:466px"></div><div class="i3">${TXT.introEn}</div><div class="i4">${TXT.introSub}</div></div>
+      <div id="main"><div class="title" dir="rtl">${TXT.title}</div><div class="rule" style="top:245px;left:165px;width:401px"></div><div class="t-en">${TXT.titleEn}</div><div class="t-sub">${TXT.titleSub}</div>
+        <div id="dim"><div class="count"><span id="num">0</span><span class="of"> / ${N}</span></div>
         <div class="track"></div><div class="fill" id="fill"></div>${MILE.map((m, i) => `<div class="dot" id="dot${i}" style="left:${m[1]}px"></div><div class="lab" style="left:${m[1]}px"><b dir="rtl">${m[2]}</b><span>${m[3]}</span></div>`).join('')}</div>
         <div id="veil"></div>
         ${VERSES.map((v, i) => `<div class="verse" id="v${i}"><div class="v-ar" dir="rtl"><span>${v.ar}</span> <span class="gold">${v.gold}</span></div><div class="rule" style="top:48px;left:152px;width:428px"></div><div class="v-en">${v.en}</div><div class="v-ref">${v.ref}</div></div>`).join('')}</div>
-      <div id="end"><div class="e0" dir="rtl">100 قطرة.</div><div class="e1" dir="rtl">100 قطرة</div><div class="rule" style="top:322px;left:232px;width:268px"></div><div class="e2">100 drops</div><div class="e3">The Prophet (peace be upon him) sought Allah’s forgiveness a hundred times a day.</div><div class="e4">— Sahih Muslim 2702 —</div><div class="e5" dir="rtl">احفظه · وردّده غدًا</div><div class="e6">Save this · say it again tomorrow</div></div>`;
+      <div id="end"><div class="e0" dir="rtl">${TXT.endBig}.</div><div class="e1" dir="rtl">${TXT.endBig}</div><div class="rule" style="top:322px;left:232px;width:268px"></div><div class="e2">${TXT.endEn}</div><div class="e3">${TXT.endText}</div><div class="e4">${TXT.endRef}</div><div class="e5" dir="rtl">${TXT.endAr}</div><div class="e6">${TXT.endSub}</div></div>`;
     const $ = (s) => ui.querySelector(s);
     const fit = (el, w) => { const cur = el.getBoundingClientRect().width / (stage.getBoundingClientRect().width / W || 1); if (cur > 0) el.style.fontSize = (parseFloat(getComputedStyle(el).fontSize) * w) / cur + 'px'; };
-    fit($('.title'), 378); fit($('.i2'), 428); fit($('.e1'), 212);
+    fit($('.title'), 378); fit($('.i2'), 428); fit($('.e1'), 212); ui.style.setProperty('--acc', ACC);
+    ui.querySelectorAll('.verse').forEach((v) => { const a = v.querySelector('.v-ar'), w = a.scrollWidth; if (w > 640) a.style.fontSize = (29 * 640) / w + 'px'; });
     const black = html('div', {}, stage); Object.assign(black.style, { position: 'absolute', inset: 0, background: '#000', pointerEvents: 'none' });
     const num = $('#num'), fill = $('#fill'), intro = $('#intro'), main = $('#main'), end = $('#end'), dim = $('#dim'), veil = $('#veil');
     const i1 = [...ui.querySelectorAll('.i1 span')];
 
     return {
-      render(t) {
-        const cam = camera(t);
+      render(rt) {
+        const t = wtime(rt), cam = camera(t);
         g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, W, H);
         g.setTransform(cam.s, 0, 0, cam.s, cam.x - P[0] * cam.s, cam.y - P[1] * cam.s);
-        world(t);
+        world(t, rt);
         g.setTransform(1, 0, 0, 1, 0, 0);
-        drops(t, cam);
+        drops(rt, cam);
+        if (PAL) { g.globalCompositeOperation = 'soft-light'; g.fillStyle = rgba(PAL, PAL[3] * 2.2); g.fillRect(0, 0, W, H); g.globalCompositeOperation = 'source-over'; g.fillStyle = rgba(PAL, PAL[3] * 0.35); g.fillRect(0, 0, W, H); }
         const hz = g.createLinearGradient(0, 0, 0, 640); hz.addColorStop(0, 'rgba(221,212,196,.96)'); hz.addColorStop(0.45, 'rgba(220,208,188,.82)'); hz.addColorStop(0.68, 'rgba(220,206,184,.5)'); hz.addColorStop(0.84, 'rgba(220,204,180,.18)'); hz.addColorStop(1, 'rgba(220,204,180,0)');
         g.fillStyle = hz; g.fillRect(0, 0, W, 640);
         g.globalCompositeOperation = 'overlay'; g.fillStyle = g.createPattern(grain, 'repeat'); g.fillRect(0, 0, W, H); g.globalCompositeOperation = 'source-over';
@@ -210,19 +226,19 @@
         // main UI
         const mo = sm(t, 5.02, 5.45) * (1 - sm(t, 108.3, 108.8));
         main.style.opacity = mo.toFixed(3); main.style.display = mo <= 0 ? 'none' : '';
-        const n = clamp(Math.floor(t - 5.033), 0, 100);
+        const n = clamp(Math.floor(rt - 5.033), 0, N), PX = 520 / N;
         if (num.__n !== n) { num.textContent = n; num.__n = n; }
-        const pulse = n > 0 ? 1 + 0.07 * (1 - prog(t, TICK(n), TICK(n) + 0.18)) : 1;
+        const pulse = n > 0 ? 1 + 0.07 * (1 - prog(rt, TICK(n), TICK(n) + 0.18)) : 1;
         num.style.transform = `scale(${pulse.toFixed(3)})`;
-        const fp = n === 0 ? 0 : n - 1 + ease.outQuad(prog(t, TICK(n), TICK(n) + 0.3));
-        fill.style.left = 620 - 5.2 * Math.max(fp, 0.25 * mo) + 'px'; fill.style.width = 5.2 * Math.max(fp, 0.25 * mo) + 'px';
+        const fp = n === 0 ? 0 : n - 1 + ease.outQuad(prog(rt, TICK(n), TICK(n) + 0.3));
+        fill.style.left = 620 - PX * Math.max(fp, 0.25 * mo) + 'px'; fill.style.width = PX * Math.max(fp, 0.25 * mo) + 'px';
         let vshow = 0;
-        MILE.forEach((m, i) => { const on = sm(t, TICK(m[0]) + 0.05, TICK(m[0]) + 0.3); const d = $('#dot' + i); d.style.background = on > 0.5 ? '#c08a2a' : '#bfae94'; d.style.transform = `translate(-50%,-50%) scale(${(1 + 0.4 * on).toFixed(3)})`; d.style.boxShadow = `0 0 ${12 * on}px ${4 * on}px rgba(224,170,60,${0.55 * on})`; });
+        MILE.forEach((m, i) => { const on = sm(rt, TICK(m[0]) + 0.05, TICK(m[0]) + 0.3); const d = $('#dot' + i); d.style.background = on > 0.5 ? '#c08a2a' : '#bfae94'; d.style.transform = `translate(-50%,-50%) scale(${(1 + 0.4 * on).toFixed(3)})`; d.style.boxShadow = `0 0 ${12 * on}px ${4 * on}px rgba(224,170,60,${0.55 * on})`; });
         VERSES.forEach((v, i) => {
-          const a = TICK(v.n) + 0.2, b = i === 3 ? 108.3 : a + 4.25, o = sm(t, a, a + 0.35) * (1 - sm(t, b, b + 0.4)), el = $('#v' + i);
+          const a = TICK(v.n) + 0.2, b = i === 3 ? rtime(108.3) : Math.min(a + 4.25, TICK(MN[i + 1]) - 0.5), o = sm(rt, a, a + 0.35) * (1 - sm(rt, b, b + 0.4)), el = $('#v' + i);
           el.style.opacity = o.toFixed(3); el.style.display = o <= 0 ? 'none' : ''; vshow = Math.max(vshow, o);
-          const sp = el.querySelectorAll('.v-ar span'); sp[1].style.opacity = sm(t, a + 0.45, a + 0.8).toFixed(3);
-          el.querySelector('.v-en').style.opacity = sm(t, a + 0.5, a + 0.9).toFixed(3); el.querySelector('.v-ref').style.opacity = sm(t, a + 0.7, a + 1.1).toFixed(3);
+          const sp = el.querySelectorAll('.v-ar span'); sp[1].style.opacity = sm(rt, a + 0.45, a + 0.8).toFixed(3);
+          el.querySelector('.v-en').style.opacity = sm(rt, a + 0.5, a + 0.9).toFixed(3); el.querySelector('.v-ref').style.opacity = sm(rt, a + 0.7, a + 1.1).toFixed(3);
         });
         dim.style.opacity = (1 - 0.45 * vshow).toFixed(3); veil.style.opacity = (0.75 * vshow).toFixed(3);
         // end card
@@ -235,19 +251,19 @@
 
   // ---------------- sound ----------------
   function sounds() {
-    const ev = [{ t: 0.3, type: 'swell', dur: 1.3, rise: 0.9, gain: -16, low: 70 }, { t: 0.4, type: 'bed', dur: 112, gain: -40, low: 300, high: 2500 },
-      { t: 27.6, type: 'swell', dur: 2.6, rise: 0.5, gain: -4, low: 42, body: 1.6 }, { t: 27.9, type: 'rain', dur: 7.9, gain: -24, density: 14, dropGain: -30 },
+    const ev = [{ t: 0.3, type: 'swell', dur: 1.3, rise: 0.9, gain: -16, low: 70 }, { t: 0.4, type: 'bed', dur: DUR - 1.2, gain: -40, low: 300, high: 2500 },
+      { t: rtime(27.6), type: 'swell', dur: 2.6, rise: 0.5, gain: -4, low: 42, body: 1.6 }, { t: rtime(27.9), type: 'rain', dur: 7.9 / K, gain: -24, density: 14, dropGain: -30 },
       { t: 5.0, type: 'whoosh', dur: 1.2, rise: 0.7, gain: -18 }];
-    for (let n = 1; n <= 100; n++) { const t = TICK(n) + 0.24; ev.push({ t, type: 'pop', gain: -11, freq: 1250 + (n % 3) * 120 }, { t: t + 0.01, type: 'tick', gain: -14, freq: 5200, dur: 0.05 }); }
-    [25, 50, 75, 100].forEach((n) => ev.push({ t: TICK(n) + 0.1, type: 'swell', dur: 1.0, rise: 0.45, gain: -13, low: 90 }, { t: TICK(n) + 0.3, type: 'twinkle', dur: 1.1, density: 10, gain: -18 }));
-    for (let t = 44; t < 107; t += 2.6) ev.push({ t: t + (Math.sin(t * 7) + 1) * 0.6, type: 'twinkle', dur: 0.5, density: 12, gain: t > 80 ? -22 : -27 });
+    for (let n = 1; n <= N; n++) { const t = TICK(n) + 0.24; ev.push({ t, type: 'pop', gain: -11, freq: 1250 + (n % 3) * 120 }, { t: t + 0.01, type: 'tick', gain: -14, freq: 5200, dur: 0.05 }); }
+    MN.forEach((n) => ev.push({ t: TICK(n) + 0.1, type: 'swell', dur: 1.0, rise: 0.45, gain: -13, low: 90 }, { t: TICK(n) + 0.3, type: 'twinkle', dur: 1.1, density: 10, gain: -18 }));
+    for (let t = 44; t < 107; t += 2.6 * K) ev.push({ t: rtime(t) + (Math.sin(t * 7) + 1) * 0.6, type: 'twinkle', dur: 0.5, density: 12, gain: t > 80 ? -22 : -27 });
     return ev;
   }
 
   Reel.run({
-    id: 'qatra', title: 'مئة قطرة', width: W, height: H, duration: DUR, fps: 30, background: '#000', loop: false,
+    id: 'qatra' + (SC.id ? '-' + SC.id : ''), title: TXT.brandAr, width: W, height: H, duration: DUR, fps: 30, background: '#000', loop: false,
     fonts: ['700 40px Amiri', '400 40px Amiri', '400 30px "Amiri Quran"', '400 20px "EB Garamond"', '500 20px "EB Garamond"', '600 20px "Saira Condensed"', '400 26px "Aref Ruqaa"'],
-    original: '../../media/qatra.m4a', preferOriginal: true,
+    original: SC.original || !SC.id ? '../../media/qatra.m4a' : null, preferOriginal: true,
     setup, sounds,
   });
 })();

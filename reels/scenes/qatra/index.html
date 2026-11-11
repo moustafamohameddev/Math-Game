@@ -12,7 +12,7 @@
   #ui{position:absolute;inset:0;font-family:"EB Garamond",serif;color:#3a2a1e}
   #ui>div,#main>div,#dim>div,#intro>div,#end>div{position:absolute}
   #main,#dim,#intro,#end{inset:0}
-  .gold{color:#b8862b}
+  .gold{color:var(--acc,#b8862b)}
   .rule{height:2px;background:#bf9440;border-radius:2px}
   .rule::after{content:"~";position:absolute;left:50%;top:-3px;transform:translateX(-50%);font:16px "EB Garamond";color:#bf9440}
   .rule::before{content:"";position:absolute;right:-1px;bottom:0;width:8px;height:9px;border-right:2px solid #bf9440;border-bottom-right-radius:8px}
@@ -26,7 +26,7 @@
   .i2,.title,.e1{display:inline-block;left:50%!important;width:auto!important;transform:translateX(-50%)}
   .i3{left:0;width:720px;top:344px;text-align:center;font-size:17px;color:#b08a3c;letter-spacing:.8px}
   .i4{left:0;width:720px;top:379px;text-align:center;font-size:17.5px;color:#5b5046;letter-spacing:.8px}
-  .title{top:128px;font:700 70px Amiri,serif;color:#b8862b;white-space:nowrap;line-height:120px;text-shadow:0 1px 0 rgba(120,80,20,.25)}
+  .title{top:128px;font:700 70px Amiri,serif;color:var(--acc,#b8862b);white-space:nowrap;line-height:120px;text-shadow:0 1px 0 rgba(120,80,20,.25)}
   .t-en{left:0;width:720px;top:266px;text-align:center;font-size:17.5px;color:#b08a3c;letter-spacing:.5px}
   .t-sub{left:0;width:720px;top:293px;text-align:center;font-size:16px;color:#4a3c30;letter-spacing:.7px}
   .count{left:0;width:720px;top:346px;text-align:center;line-height:70px}
@@ -56,6 +56,7 @@
 <script src="../../engine/sfx.js"></script>
 <script src="../../engine/player.js"></script>
 <script src="data.js"></script>
+<script src="scripts.js"></script>
 <script src="scene.js"></script>
 </body>
 </html>
