@@ -173,6 +173,63 @@
       birds.forEach((b) => { if (t < b.t0) return; const x = -40 + ((b.x + (t - b.t0) * b.v) % 800), y = b.y + Math.sin(t * 0.7 + b.ph) * 10, fl = Math.sin(t * 7 + b.ph) * 4; g.beginPath(); g.moveTo(x - 11, y - 3 + fl); g.quadraticCurveTo(x - 5, y - 8 - fl, x, y); g.quadraticCurveTo(x + 5, y - 8 - fl, x + 11, y - 3 + fl); g.stroke(); });
     }
 
+
+    // ================= story worlds (one distinct painting per dhikr) =================
+    // Each count adds one item; the sky moves from its first to its last colour.
+    const sr = rng(9 + N);
+    const STORY = {
+      palms: { sky: [[232, 205, 160], [24, 30, 66]], ground: [[214, 172, 120], [58, 60, 84]], stars: 1,
+        pos: (i) => { const row = i % 3, k = Math.floor(i / 3); return [70 + ((k * 197 + row * 83) % 580), 800 + row * 110 + ((i * 37) % 50), 0.75 + row * 0.3]; },
+        item(x, y, k, q, t, i) {
+          const h = 120 * k * q, sw = Math.sin(t * 1.1 + i) * 4 * k;
+          g.strokeStyle = '#6b4a2e'; g.lineWidth = 7 * k; g.lineCap = 'round'; g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + 8 * k, y - h * 0.5, x + sw, y - h); g.stroke();
+          g.strokeStyle = '#3f8a4a'; g.lineWidth = 5 * k;
+          for (let f = 0; f < 7; f++) { const a = -Math.PI + (f / 6) * Math.PI, L = 46 * k * q; g.beginPath(); g.moveTo(x + sw, y - h); g.quadraticCurveTo(x + sw + Math.cos(a) * L * 0.6, y - h + Math.sin(a) * L * 0.9 - 10 * k, x + sw + Math.cos(a) * L, y - h + Math.sin(a) * L * 0.35 + 14 * k * q); g.stroke(); }
+          g.fillStyle = '#c9892e'; ell(x + sw - 4 * k, y - h + 6 * k, 3.5 * k * q, 3.5 * k * q); g.fill(); ell(x + sw + 5 * k, y - h + 8 * k, 3.5 * k * q, 3.5 * k * q); g.fill();
+        } },
+      lanterns: { sky: [[70, 60, 110], [16, 18, 46]], ground: [[40, 40, 70], [22, 24, 44]], stars: 1, rise: 1,
+        pos: (i) => [60 + ((i * 211) % 600), 560 + ((i * 131) % 520), 0.7 + ((i * 7) % 5) * 0.12],
+        item(x, y, k, q, t, i, age) {
+          const yy = Math.max(660 + (i % 7) * 22, y - Math.min(age, 30) * 9 * k) + Math.sin(t * 0.8 + i) * 6, xx = x + Math.sin(t * 0.5 + i * 2) * 8;
+          soft(xx, yy, 46 * k * q, 46 * k * q, [255, 190, 90], 0.55);
+          g.fillStyle = '#f6b24a'; g.beginPath(); g.moveTo(xx - 11 * k * q, yy - 15 * k * q); g.lineTo(xx + 11 * k * q, yy - 15 * k * q); g.lineTo(xx + 8 * k * q, yy + 13 * k * q); g.lineTo(xx - 8 * k * q, yy + 13 * k * q); g.closePath(); g.fill();
+          g.fillStyle = '#fff1c4'; ell(xx, yy + 4 * k * q, 4 * k * q, 6 * k * q); g.fill();
+        } },
+      roses: { sky: [[226, 208, 196], [246, 214, 190]], ground: [[150, 172, 110], [112, 150, 84]],
+        pos: (i) => { const y = 760 + ((i * 97) % 500); return [40 + ((i * 173) % 640), y, 0.6 + (y - 760) / 520]; },
+        item(x, y, k, q, t, i, age) {
+          const r = 17 * k * q;
+          g.strokeStyle = '#4f7a3c'; g.lineWidth = 3 * k; g.beginPath(); g.moveTo(x, y); g.lineTo(x + 2, y + 34 * k * q); g.stroke();
+          g.fillStyle = '#6f9a4c'; ell(x + 10 * k, y + 22 * k * q, 9 * k * q, 4 * k * q); g.fill();
+          g.fillStyle = '#b3263a'; ell(x, y, r, r); g.fill(); g.fillStyle = '#d4505e'; ell(x - r * 0.12, y - r * 0.1, r * 0.62, r * 0.62); g.fill(); g.fillStyle = '#8d1b27'; ell(x, y, r * 0.3, r * 0.3); g.fill();
+          if (age < 3.2) for (let m = 0; m < 10; m++) { const a = -Math.PI / 2 + (m - 4.5) * 0.16, d = age * (70 + m * 9); soft(x + Math.cos(a) * d, y + Math.sin(a) * d, 7, 7, [255, 225, 150], 0.9 * (1 - age / 3.2)); }
+        } },
+      tree: { sky: [[40, 44, 86], [246, 222, 180]], ground: [[52, 70, 60], [128, 164, 96]], sun: 1,
+        pos: (i) => { const a = i * 2.39996, d = 20 + Math.sqrt(i + 1) * 24; return [360 + Math.cos(a) * d * 1.2, 770 + Math.sin(a) * d * 0.62, 1]; },
+        pre(p, t) { g.strokeStyle = '#6b4a2e'; g.lineCap = 'round'; g.lineWidth = 16 + 16 * p; g.beginPath(); g.moveTo(360, 1010); g.quadraticCurveTo(350, 900, 360, 1010 - (90 + 150 * p)); g.stroke();
+          g.lineWidth = 8; [[-1, 0.55], [1, 0.7], [-1, 0.85]].forEach(([d, f]) => { if (p > f - 0.4) { g.beginPath(); g.moveTo(358, 1010 - (90 + 150 * p) * f); g.lineTo(358 + d * 110 * Math.min(1, p * 1.4), 1010 - (90 + 150 * p) * f - 60); g.stroke(); } }); },
+        item(x, y, k, q) { const r = 30 * q, gr = g.createRadialGradient(x - r * 0.35, y - r * 0.4, r * 0.1, x, y, r); gr.addColorStop(0, '#9cc474'); gr.addColorStop(0.5, '#6fa655'); gr.addColorStop(1, '#3f7639'); g.fillStyle = gr; ell(x, y, r, r); g.fill(); } },
+    }[SC.story];
+    const sStars = []; for (let i = 0; i < 90; i++) sStars.push([sr() * 720, 380 + sr() * 420, 0.6 + sr() * 1.6, sr() * 6]);
+    function storyWorld(rt) {
+      const n = clamp(Math.floor(rt - 5.033), 0, N), p = clamp((rt - 5.033) / N), z = 1 + 0.07 * p;
+      g.setTransform(z, 0, 0, z, 360 * (1 - z), 900 * (1 - z));
+      let gr = g.createLinearGradient(0, 300, 0, 780); gr.addColorStop(0, mix(STORY.sky[0], STORY.sky[1], p)); gr.addColorStop(1, mix(STORY.sky[0].map((v) => Math.min(255, v + 18)), STORY.sky[1].map((v) => Math.min(255, v + 30)), p));
+      g.fillStyle = gr; g.fillRect(-50, -50, 820, 900);
+      const night = STORY.stars ? p : 0;
+      sStars.forEach((s) => { g.fillStyle = `rgba(255,248,220,${night * (0.4 + 0.6 * (0.5 + 0.5 * Math.sin(rt * 2 + s[3])))})`; ell(s[0], s[1], s[2], s[2]); g.fill(); });
+      if (STORY.stars) { soft(560, 520, 90, 90, [255, 245, 210], 0.35 * night); g.fillStyle = `rgba(255,246,214,${night})`; g.beginPath(); g.arc(560, 520, 34, 0, 6.2832); g.fill(); g.fillStyle = mix(STORY.sky[0], STORY.sky[1], p); g.beginPath(); g.arc(574, 512, 30, 0, 6.2832); g.fill(); }
+      if (STORY.sun) { const sy = 800 - 190 * p; soft(360, sy, 260, 260, [255, 226, 150], 0.7 * p); g.fillStyle = `rgba(255,236,170,${0.4 + 0.6 * p})`; ell(360, sy, 52, 52); g.fill(); }
+      g.fillStyle = mix(STORY.ground[0].map((v) => Math.min(255, v + 22)), STORY.ground[1].map((v) => Math.min(255, v + 14)), p); g.beginPath(); g.moveTo(-50, 770); g.bezierCurveTo(150, 700, 300, 760, 470, 735); g.bezierCurveTo(600, 715, 700, 750, 780, 740); g.lineTo(780, 800); g.lineTo(-50, 800); g.fill();
+      gr = g.createLinearGradient(0, 760, 0, 1300); gr.addColorStop(0, mix(STORY.ground[0], STORY.ground[1], p)); gr.addColorStop(1, mix(STORY.ground[0].map((v) => v * 0.72), STORY.ground[1].map((v) => v * 0.7), p)); g.fillStyle = gr; g.fillRect(-50, 765, 820, 560);
+      if (STORY.pre) STORY.pre(p, rt);
+      const items = []; for (let i = 1; i <= n; i++) { const P2 = STORY.pos(i); items.push([i, P2]); }
+      items.sort((a, b) => a[1][1] - b[1][1]).forEach(([i, P2]) => { const age = rt - TICK(i) - 0.24; if (age <= 0) return; STORY.item(P2[0], P2[1], P2[2], ease.outBack(clamp(age / 0.6)), rt, i, age); });
+      // the falling drop of light for the next item
+      const m = Math.floor(rt - 5.033 + 0.07); if (m >= 1 && m <= N && rt > 5.9) { const dt = rt - TICK(m), P2 = STORY.pos(m); if (dt <= 0.2425) { const f = Math.pow(clamp(dt / 0.2425), 2.3), y0 = 540, yy = lerp(y0, P2[1] - (STORY.rise ? 0 : 20), f); soft(P2[0], yy, 16, 16, [255, 240, 190], 0.9); g.fillStyle = '#fff6d8'; ell(P2[0], yy, 5, 7); g.fill(); } }
+      g.setTransform(1, 0, 0, 1, 0, 0);
+    }
+
     function drops(t, cam) {
       const n = Math.floor(t - 5.033 + 0.07); if (n < 1 || n > N) return;
       const dt = t - TICK(n); if (dt > 0.2425 || t < 5.9) return;
@@ -206,11 +263,9 @@
       render(rt) {
         const t = wtime(rt), cam = camera(t);
         g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, W, H);
-        g.setTransform(cam.s, 0, 0, cam.s, cam.x - P[0] * cam.s, cam.y - P[1] * cam.s);
-        world(t, rt);
-        g.setTransform(1, 0, 0, 1, 0, 0);
-        drops(rt, cam);
-        if (PAL) { g.globalCompositeOperation = 'soft-light'; g.fillStyle = rgba(PAL, PAL[3] * 2.2); g.fillRect(0, 0, W, H); g.globalCompositeOperation = 'source-over'; g.fillStyle = rgba(PAL, PAL[3] * 0.35); g.fillRect(0, 0, W, H); }
+        if (STORY) storyWorld(rt);
+        else { g.setTransform(cam.s, 0, 0, cam.s, cam.x - P[0] * cam.s, cam.y - P[1] * cam.s); world(t, rt); g.setTransform(1, 0, 0, 1, 0, 0); drops(rt, cam); }
+        if (PAL && !STORY) { g.globalCompositeOperation = 'soft-light'; g.fillStyle = rgba(PAL, PAL[3] * 2.2); g.fillRect(0, 0, W, H); g.globalCompositeOperation = 'source-over'; g.fillStyle = rgba(PAL, PAL[3] * 0.35); g.fillRect(0, 0, W, H); }
         const hz = g.createLinearGradient(0, 0, 0, 640); hz.addColorStop(0, 'rgba(221,212,196,.96)'); hz.addColorStop(0.45, 'rgba(220,208,188,.82)'); hz.addColorStop(0.68, 'rgba(220,206,184,.5)'); hz.addColorStop(0.84, 'rgba(220,204,180,.18)'); hz.addColorStop(1, 'rgba(220,204,180,0)');
         g.fillStyle = hz; g.fillRect(0, 0, W, 640);
         g.globalCompositeOperation = 'overlay'; g.fillStyle = g.createPattern(grain, 'repeat'); g.fillRect(0, 0, W, H); g.globalCompositeOperation = 'source-over';
@@ -252,7 +307,7 @@
   // ---------------- sound ----------------
   function sounds() {
     const ev = [{ t: 0.3, type: 'swell', dur: 1.3, rise: 0.9, gain: -16, low: 70 }, { t: 0.4, type: 'bed', dur: DUR - 1.2, gain: -40, low: 300, high: 2500 },
-      { t: rtime(27.6), type: 'swell', dur: 2.6, rise: 0.5, gain: -4, low: 42, body: 1.6 }, { t: rtime(27.9), type: 'rain', dur: 7.9 / K, gain: -24, density: 14, dropGain: -30 },
+      ...(SC.story ? [] : [{ t: rtime(27.6), type: 'swell', dur: 2.6, rise: 0.5, gain: -4, low: 42, body: 1.6 }, { t: rtime(27.9), type: 'rain', dur: 7.9 / K, gain: -24, density: 14, dropGain: -30 }]),
       { t: 5.0, type: 'whoosh', dur: 1.2, rise: 0.7, gain: -18 }];
     for (let n = 1; n <= N; n++) { const t = TICK(n) + 0.24; ev.push({ t, type: 'pop', gain: -11, freq: 1250 + (n % 3) * 120 }, { t: t + 0.01, type: 'tick', gain: -14, freq: 5200, dur: 0.05 }); }
     MN.forEach((n) => ev.push({ t: TICK(n) + 0.1, type: 'swell', dur: 1.0, rise: 0.45, gain: -13, low: 90 }, { t: TICK(n) + 0.3, type: 'twinkle', dur: 1.1, density: 10, gain: -18 }));
