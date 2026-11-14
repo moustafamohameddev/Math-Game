@@ -39,14 +39,14 @@
     food: `<svg width="196" height="168" viewBox="0 0 196 168"><ellipse cx="98" cy="118" rx="96" ry="48" fill="#b9aea0" stroke="#7d7468" stroke-width="3"/><ellipse cx="98" cy="114" rx="88" ry="42" fill="#d8d0c4"/>
       <path d="M60,40 q20,-34 52,-24 q26,10 20,40 q-40,16 -72,-16z" fill="#ead29a" stroke="#b8975a" stroke-width="2"/><path d="M72,30 l40,22 M92,18 l26,30" stroke="#c9a868" stroke-width="2"/>
       ${[[40, 78, 30, '#7fae4a', '#4d7a2c'], [152, 76, 30, '#d9772e', '#a84a18'], [98, 88, 22, '#f4f1ea', '#cfcabd'], [58, 128, 38, '#e2622a', '#b0401a'], [140, 130, 38, '#e9b63a', '#c18a1e']].map(([x, y, r, c, d]) => `<ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r * 0.62}" fill="#f6f2ea" stroke="#9a9186" stroke-width="2.5"/><ellipse cx="${x}" cy="${y - 2}" rx="${r * 0.82}" ry="${r * 0.48}" fill="${c}"/><circle cx="${x - r * 0.3}" cy="${y - 4}" r="${r * 0.14}" fill="${d}"/><circle cx="${x + r * 0.25}" cy="${y}" r="${r * 0.14}" fill="${d}"/><circle cx="${x}" cy="${y - 8}" r="${r * 0.1}" fill="#4d7a2c"/>`).join('')}</svg>`,
-    soldier: `<svg width="190" height="250" viewBox="0 0 190 250"><g fill="#0c0c0e"><path d="M84,30 Q88,6 120,8 Q150,10 154,28 L164,34 L84,36Z"/><ellipse cx="120" cy="52" rx="27" ry="30"/><rect x="104" y="74" width="32" height="26"/><path d="M60,104 Q120,84 172,108 Q190,170 188,250 L22,250 Q22,170 30,128 Q36,108 60,104Z"/><path d="M36,132 L6,96 L20,84 L62,112Z"/><path d="M8,98 L74,44 L88,52 L24,108Z"/><path d="M70,46 l22,-8 l6,12 l-22,8z"/></g><path d="M168,168 l12,-10 v8 l-12,10z M168,182 l12,-10 v8 l-12,10z" fill="#d9d9d9"/></svg>`,
+    soldier: `<svg width="166" height="218" viewBox="0 0 190 250"><g fill="#0c0c0e"><path d="M84,30 Q88,6 120,8 Q150,10 154,28 L164,34 L84,36Z"/><ellipse cx="120" cy="52" rx="27" ry="30"/><rect x="104" y="74" width="32" height="26"/><path d="M60,104 Q120,84 172,108 Q190,170 188,250 L22,250 Q22,170 30,128 Q36,108 60,104Z"/><path d="M36,132 L6,96 L20,84 L62,112Z"/><path d="M8,98 L74,44 L88,52 L24,108Z"/><path d="M70,46 l22,-8 l6,12 l-22,8z"/></g><path d="M168,168 l12,-10 v8 l-12,10z M168,182 l12,-10 v8 l-12,10z" fill="#d9d9d9"/></svg>`,
   };
 
   // [id, x, y, t0, dur, kind]  kind: pop | wipe | drop
   const ITEMS = [
     ['caravan', 60, 115, 1.5, 1.5, 'wipe'], ['post', 332, 432, 3.75, 0.7, 'drop'], ['signTop', 300, 432, 3.8, 0.5, 'pop'], ['signBot', 284, 490, 4.0, 0.5, 'pop'],
     ['camels', 238, 644, 4.3, 0.55, 'wipe'], ['cloud', 490, 356, 4.05, 0.6, 'pop'], ['city', 478, 438, 5.0, 0.6, 'pop'], ['house', 18, 468, 7.7, 0.5, 'pop'], ['sun', 30, 354, 8.0, 0.6, 'pop'],
-    ['man', 320, 900, 10.6, 0.4, 'pop'], ['woman', 150, 870, 10.85, 0.4, 'pop'], ['kaaba', 435, 830, 11.8, 1.0, 'pop'], ['food', 310, 1108, 17.05, 0.8, 'pop'], ['soldier', 25, 1030, 20.4, 0.5, 'pop'],
+    ['man', 320, 900, 10.6, 0.4, 'pop'], ['woman', 150, 870, 10.85, 0.4, 'pop'], ['kaaba', 435, 830, 11.8, 1.0, 'pop'], ['food', 310, 1108, 17.05, 0.8, 'pop'], ['soldier', 4, 1062, 20.4, 0.5, 'pop'],
   ];
   const VERSES = [
     ['لِإِيلَٰفِ قُرَيْشٍ ۝١', 706, 116, 0.25, 1.7], ['إِۦلَٰفِهِمْ رِحْلَةَ ٱلشِّتَآءِ وَٱلصَّيْفِ ۝٢', 716, 296, 3.45, 1.5],
@@ -67,7 +67,7 @@
     const els = ITEMS.map(([id, x, y, t0, dur, kind]) => { const el = html('div', { class: 'el', html: ART[id] }, stage); el.style.left = x + 'px'; el.style.top = y + 'px'; return { el, t0, dur, kind }; });
     const rainEl = html('div', { class: 'el' }, stage); Object.assign(rainEl.style, { left: '500px', top: '425px', width: '180px', height: '150px', overflow: 'hidden' });
     const drops = []; for (let i = 0; i < 26; i++) { const d = html('div', {}, rainEl); Object.assign(d.style, { position: 'absolute', width: '3px', height: '9px', borderRadius: '2px', background: '#5f8fd0', left: 10 + r() * 150 + 'px' }); drops.push([d, r(), 0.7 + r() * 0.5]); }
-    const labs = LABELS.map(([txt, x, y, w, h, t0]) => { const el = html('div', { class: 'el', text: txt, dir: 'rtl' }, stage); Object.assign(el.style, { left: x + 'px', top: y + 'px', width: w + 'px', height: h + 'px', lineHeight: h + 'px', textAlign: 'center', font: '700 35px "Aref Ruqaa",Amiri,serif', color: '#1c130a' }); return { el, t0 }; });
+    const labs = LABELS.map(([txt, x, y, w, h, t0]) => { const el = html('div', { class: 'el', text: txt, dir: 'rtl' }, stage); Object.assign(el.style, { left: x + 'px', top: y + 'px', width: w + 'px', height: h + 'px', lineHeight: h + 'px', textAlign: 'center', font: '700 25px "Aref Ruqaa",Amiri,serif', color: '#1c130a' }); return { el, t0 }; });
     const vs = VERSES.map(([txt, right, y, t0, dur]) => { const el = html('div', { class: 'verse', text: txt }, stage); el.style.right = W - right + 'px'; el.style.top = y + 'px'; return { el, t0, dur }; });
 
     return {
