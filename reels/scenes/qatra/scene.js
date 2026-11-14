@@ -7,7 +7,7 @@
   const { html, prog, ease, clamp, lerp, kf, rng } = R;
   const D = window.QATRA, P = D.cam.p;
   const W = 720, H = 1280;
-  const HANDLE = window.QATRA_HANDLE || 'mostafamohamed6003';
+  const HANDLE = window.QATRA_HANDLE || ''; // empty = no account handle on the video
   // script (see scripts.js): ?s=<id>. The world always plays its 100-drop story; with a
   // smaller count it simply unfolds faster, while the counter still ticks once a second.
   const SC = (window.QATRA_SCRIPTS || []).find((x) => x.id === new URLSearchParams(location.search).get('s')) || (window.QATRA_SCRIPTS || [{}])[0] || {};
@@ -245,7 +245,7 @@
     // ---------------- UI (HTML) ----------------
     const ui = html('div', { id: 'ui', dir: 'ltr' }, stage);
     ui.innerHTML = `
-      <div class="brandbox"><div class="b-ar" dir="rtl">${TXT.brandAr}</div><div class="b-line"><i></i></div><div class="b-en">${TXT.brandEn}</div><div class="b-h">${HANDLE}</div></div>
+      <div class="brandbox"><div class="b-ar" dir="rtl">${TXT.brandAr}</div><div class="b-line"><i></i></div><div class="b-en">${TXT.brandEn}</div>${HANDLE ? `<div class="b-h">${HANDLE}</div>` : ''}</div>
       <div id="intro"><div class="i1" dir="rtl"><span>${TXT.intro1[0]}</span> <span class="gold">${TXT.intro1[1]}</span> <span>${TXT.intro1[2]}</span></div><div class="i2" dir="rtl">${TXT.introBig}</div><div class="rule" style="top:322px;left:134px;width:466px"></div><div class="i3">${TXT.introEn}</div><div class="i4">${TXT.introSub}</div></div>
       <div id="main"><div class="title" dir="rtl">${TXT.title}</div><div class="rule" style="top:245px;left:165px;width:401px"></div><div class="t-en">${TXT.titleEn}</div><div class="t-sub">${TXT.titleSub}</div>
         <div id="dim"><div class="count"><span id="num">0</span><span class="of"> / ${N}</span></div>

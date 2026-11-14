@@ -64,7 +64,7 @@
     g.strokeStyle = 'rgba(90,80,60,.35)'; g.lineWidth = 1; for (let i = 0; i < 260; i++) { const x = r() * W, y = r() * H, a = r() * 6.28, l = 2 + r() * 9; g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + Math.cos(a) * l, y + Math.sin(a + 1) * l, x + Math.cos(a) * l * 2, y + Math.sin(a) * l * 2); g.stroke(); }
 
     const bas = html('div', { class: 'basmala', text: 'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ' }, stage);
-    const hd = html('div', { class: 'handle', text: '@' + HANDLE }, stage);
+    const hd = html('div', { class: 'handle', text: '' }, stage); // no handle: published without a logo
     const els = ITEMS.map(([id, x, y, t0, dur, kind, idle], i) => { const el = html('div', { class: 'el', html: ART[id] }, stage); el.style.left = x + 'px'; el.style.top = y + 'px'; return { el, t0, dur, kind, idle, ph: i * 1.7 }; });
     const rainEl = html('div', { class: 'el' }, stage); Object.assign(rainEl.style, { left: '500px', top: '425px', width: '180px', height: '150px', overflow: 'hidden' });
     const drops = []; for (let i = 0; i < 26; i++) { const d = html('div', {}, rainEl); Object.assign(d.style, { position: 'absolute', width: '3px', height: '9px', borderRadius: '2px', background: '#5f8fd0', left: 10 + r() * 150 + 'px' }); drops.push([d, r(), 0.7 + r() * 0.5]); }

@@ -4,7 +4,7 @@
  * story   : الرسمة — palms (نخيل وليل) | lanterns (فوانيس) | roses (ورد وأنوار) | tree (شجرة وفجر) | من غيرها = الصحرا والبِركة
  * miles   : 4 محطات (عند ربع/نص/ثلاث أرباع/آخر العدّ) — اسم المحطة + الآية
  * راجع نص كل آية قبل النشر. */
-window.QATRA_HANDLE = 'mostafamohamed6003';
+window.QATRA_HANDLE = ''; // videos are published without a logo
 window.QATRA_SCRIPTS = [
   { id: 'istighfar-100', count: 100, palette: 'gold', original: true },   // النص الأصلي
 
