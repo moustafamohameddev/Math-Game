@@ -43,10 +43,11 @@
   };
 
   // [id, x, y, t0, dur, kind]  kind: pop | wipe | drop
+  // [id, x, y, t0, dur, entrance, idle]  entrances measured from the original frame by frame
   const ITEMS = [
-    ['caravan', 60, 115, 1.5, 1.5, 'wipe'], ['post', 332, 432, 3.75, 0.7, 'drop'], ['signTop', 300, 432, 3.8, 0.5, 'pop'], ['signBot', 284, 490, 4.0, 0.5, 'pop'],
-    ['camels', 238, 644, 4.3, 0.55, 'wipe'], ['cloud', 490, 356, 4.05, 0.6, 'pop'], ['city', 478, 438, 5.0, 0.6, 'pop'], ['house', 18, 468, 7.7, 0.5, 'pop'], ['sun', 30, 354, 8.0, 0.6, 'pop'],
-    ['man', 320, 900, 10.6, 0.4, 'pop'], ['woman', 150, 870, 10.85, 0.4, 'pop'], ['kaaba', 435, 830, 11.8, 1.0, 'pop'], ['food', 310, 1108, 17.05, 0.8, 'pop'], ['soldier', 4, 1062, 20.4, 0.5, 'pop'],
+    ['caravan', 60, 115, 1.5, 1.5, 'wipeL', 'breathe'], ['signTop', 300, 432, 3.8, 0.35, 'pop', 'sway'], ['signBot', 284, 490, 4.0, 0.35, 'pop', 'sway'], ['post', 332, 432, 4.1, 0.35, 'wipeD', ''],
+    ['camels', 238, 644, 4.3, 0.55, 'wipeR', 'walk'], ['city', 478, 438, 5.0, 0.6, 'grow', ''], ['cloud', 490, 356, 5.55, 0.4, 'fade', 'drift'], ['house', 18, 468, 7.7, 0.5, 'wipeL', ''], ['sun', 30, 354, 8.0, 0.6, 'pop', 'boil'],
+    ['man', 320, 900, 10.6, 0.4, 'pop', 'breathe'], ['woman', 150, 870, 10.85, 0.4, 'pop', 'breathe'], ['kaaba', 435, 830, 11.8, 1.0, 'fade', 'glow'], ['food', 310, 1108, 17.05, 0.8, 'wipeD', 'breathe'], ['soldier', 4, 1062, 20.4, 0.5, 'wipeD', 'breathe'],
   ];
   const VERSES = [
     ['لِإِيلَٰفِ قُرَيْشٍ ۝١', 706, 116, 0.25, 1.7], ['إِۦلَٰفِهِمْ رِحْلَةَ ٱلشِّتَآءِ وَٱلصَّيْفِ ۝٢', 716, 296, 3.45, 1.5],
@@ -64,7 +65,7 @@
 
     const bas = html('div', { class: 'basmala', text: 'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ' }, stage);
     const hd = html('div', { class: 'handle', text: '@' + HANDLE }, stage);
-    const els = ITEMS.map(([id, x, y, t0, dur, kind]) => { const el = html('div', { class: 'el', html: ART[id] }, stage); el.style.left = x + 'px'; el.style.top = y + 'px'; return { el, t0, dur, kind }; });
+    const els = ITEMS.map(([id, x, y, t0, dur, kind, idle], i) => { const el = html('div', { class: 'el', html: ART[id] }, stage); el.style.left = x + 'px'; el.style.top = y + 'px'; return { el, t0, dur, kind, idle, ph: i * 1.7 }; });
     const rainEl = html('div', { class: 'el' }, stage); Object.assign(rainEl.style, { left: '500px', top: '425px', width: '180px', height: '150px', overflow: 'hidden' });
     const drops = []; for (let i = 0; i < 26; i++) { const d = html('div', {}, rainEl); Object.assign(d.style, { position: 'absolute', width: '3px', height: '9px', borderRadius: '2px', background: '#5f8fd0', left: 10 + r() * 150 + 'px' }); drops.push([d, r(), 0.7 + r() * 0.5]); }
     const labs = LABELS.map(([txt, x, y, w, h, t0]) => { const el = html('div', { class: 'el', text: txt, dir: 'rtl' }, stage); Object.assign(el.style, { left: x + 'px', top: y + 'px', width: w + 'px', height: h + 'px', lineHeight: h + 'px', textAlign: 'center', font: '700 25px "Aref Ruqaa",Amiri,serif', color: '#1c130a' }); return { el, t0 }; });
@@ -75,13 +76,26 @@
         bas.style.opacity = ease.outQuad(prog(t, 0.3, 1.2)).toFixed(3);
         hd.style.opacity = (0.9 * ease.outQuad(prog(t, 9, 10))).toFixed(3);
         els.forEach((e) => {
-          const p = prog(t, e.t0, e.t0 + e.dur);
-          e.el.style.visibility = p <= 0 ? 'hidden' : 'visible';
-          if (e.kind === 'wipe') { e.el.style.clipPath = `inset(-10px -10px -10px ${(100 * (1 - ease.outQuad(p))).toFixed(1)}%)`; e.el.style.opacity = Math.min(1, p * 3).toFixed(3); }
-          else if (e.kind === 'drop') { e.el.style.clipPath = `inset(0 0 ${(100 * (1 - ease.outQuad(p))).toFixed(1)}% 0)`; }
-          else { const q = ease.outBack(Math.min(1, p * 1.4)); e.el.style.opacity = Math.min(1, p * 2.5).toFixed(3); e.el.style.transform = `scale(${(0.6 + 0.4 * q).toFixed(3)})`; e.el.style.filter = p < 1 ? `blur(${(4 * (1 - p)).toFixed(1)}px)` : 'none'; }
+          const p = prog(t, e.t0, e.t0 + e.dur), q = ease.outQuad(p), st = e.el.style, pc = (v) => (100 * v).toFixed(1) + '%';
+          st.visibility = p <= 0 ? 'hidden' : 'visible';
+          let tf = '', op = 1, clip = 'none', fl = 'none';
+          if (e.kind === 'wipeR') { clip = `inset(-12px -12px -12px ${pc(1 - q)})`; op = Math.min(1, p * 3); tf = `translateX(${(14 * (1 - q)).toFixed(1)}px)`; }
+          else if (e.kind === 'wipeL') { clip = `inset(-12px ${pc(1 - q)} -12px -12px)`; op = Math.min(1, p * 3); }
+          else if (e.kind === 'wipeD') { clip = `inset(-12px -12px ${pc(1 - q)} -12px)`; op = Math.min(1, p * 3); }
+          else if (e.kind === 'grow') { clip = `circle(${pc(0.05 + 0.8 * q)} at 50% 45%)`; op = Math.min(1, p * 2.5); tf = `scale(${(0.9 + 0.1 * q).toFixed(3)})`; }
+          else if (e.kind === 'fade') { op = q; }
+          else { const k = ease.outBack(Math.min(1, p * 1.3)); op = Math.min(1, p * 2.5); tf = `scale(${(0.35 + 0.65 * k).toFixed(3)})`; if (p < 1) fl = `blur(${(3 * (1 - p)).toFixed(1)}px)`; }
+          // idle life after the entrance
+          const u = Math.max(0, t - e.t0), w = Math.min(1, u / 0.6), s1 = Math.sin(u * 2.1 + e.ph), s2 = Math.sin(u * 3.3 + e.ph * 2);
+          if (e.idle === 'boil') { const fk = 0.5 + 0.5 * Math.sin(u * 23) * Math.sin(u * 7.3); tf += ` rotate(${(u * 14).toFixed(1)}deg) scale(${(1 + 0.05 * s2 * w).toFixed(3)})`; fl = `brightness(${(1 + 0.16 * fk * w).toFixed(3)}) saturate(${(1 + 0.3 * fk * w).toFixed(2)})`; }
+          else if (e.idle === 'drift') tf += ` translate(${(7 * s1 * w).toFixed(1)}px,${(2 * s2 * w).toFixed(1)}px)`;
+          else if (e.idle === 'sway') { st.transformOrigin = '50% 100%'; tf += ` rotate(${(1.1 * s1 * w).toFixed(2)}deg)`; }
+          else if (e.idle === 'walk') tf += ` translate(${(-2.5 * w * (1 + Math.sin(u * 1.2))).toFixed(1)}px,${(1.3 * Math.abs(Math.sin(u * 5)) * w).toFixed(1)}px)`;
+          else if (e.idle === 'breathe') { st.transformOrigin = '50% 100%'; tf += ` scale(${(1 + 0.008 * s1 * w).toFixed(4)},${(1 + 0.014 * s1 * w).toFixed(4)})`; }
+          else if (e.idle === 'glow') fl = `drop-shadow(0 0 ${(6 + 6 * s1).toFixed(1)}px rgba(255,220,130,${(0.55 * w).toFixed(2)}))`;
+          st.clipPath = clip; st.opacity = op.toFixed(3); st.transform = tf || 'none'; st.filter = fl;
         });
-        const ra = prog(t, 5.3, 5.9); rainEl.style.opacity = ra.toFixed(3);
+        const ra = prog(t, 5.6, 6.1); rainEl.style.opacity = ra.toFixed(3);
         drops.forEach(([d, ph, sp]) => { d.style.top = (((ph + t * sp * 0.9) % 1) * 150).toFixed(1) + 'px'; });
         labs.forEach((l) => { const p = prog(t, l.t0, l.t0 + 0.45); l.el.style.opacity = p.toFixed(3); l.el.style.transform = `scale(${(0.7 + 0.3 * ease.outBack(p)).toFixed(3)})`; });
         vs.forEach((v) => { const p = ease.outQuad(prog(t, v.t0, v.t0 + v.dur)); v.el.style.visibility = p <= 0 ? 'hidden' : 'visible'; v.el.style.clipPath = `inset(-30px -30px -30px ${(100 * (1 - p)).toFixed(1)}%)`; });
