@@ -24,7 +24,7 @@
 (function (root) {
   'use strict';
   const DAILY = {
-    brand: 'mostafamohamed6003',   // اسم الحساب اللي بيظهر على كل فيديو
+    brand: '',   // اسم الحساب اللي بيظهر على كل فيديو
     start: '2026-11-06',
     scripts: [
       { id: 'tawakkul', template: 'illustrated', theme: 'brown', title: 'التوكل', subtitle: 'Tawakkul · trust in Allah',
