@@ -45,7 +45,7 @@
   // [id, x, y, t0, dur, kind]  kind: pop | wipe | drop
   // [id, x, y, t0, dur, entrance, idle]  entrances measured from the original frame by frame
   const ITEMS = [
-    ['caravan', 60, 115, 1.5, 1.5, 'wipeL', 'breathe'], ['signTop', 300, 432, 3.8, 0.35, 'pop', 'sway'], ['signBot', 284, 490, 4.0, 0.35, 'pop', 'sway'], ['post', 332, 432, 4.1, 0.35, 'wipeD', ''],
+    ['caravan', 60, 115, 1.5, 1.5, 'wipeL', 'breathe'], ['post', 332, 432, 4.1, 0.35, 'wipeD', ''], ['signTop', 300, 432, 3.8, 0.35, 'pop', 'sway'], ['signBot', 284, 490, 4.0, 0.35, 'pop', 'sway'],
     ['camels', 238, 644, 4.3, 0.55, 'wipeR', 'walk'], ['city', 478, 438, 5.0, 0.6, 'grow', ''], ['cloud', 490, 356, 5.55, 0.4, 'fade', 'drift'], ['house', 18, 468, 7.7, 0.5, 'wipeL', ''], ['sun', 30, 354, 8.0, 0.6, 'pop', 'boil'],
     ['man', 320, 900, 10.6, 0.4, 'pop', 'breathe'], ['woman', 150, 870, 10.85, 0.4, 'pop', 'breathe'], ['kaaba', 435, 830, 11.8, 1.0, 'fade', 'glow'], ['food', 310, 1108, 17.05, 0.8, 'wipeD', 'breathe'], ['soldier', 4, 1062, 20.4, 0.5, 'wipeD', 'breathe'],
   ];
@@ -69,7 +69,7 @@
     const rainEl = html('div', { class: 'el' }, stage); Object.assign(rainEl.style, { left: '500px', top: '425px', width: '180px', height: '150px', overflow: 'hidden' });
     const drops = []; for (let i = 0; i < 26; i++) { const d = html('div', {}, rainEl); Object.assign(d.style, { position: 'absolute', width: '3px', height: '9px', borderRadius: '2px', background: '#5f8fd0', left: 10 + r() * 150 + 'px' }); drops.push([d, r(), 0.7 + r() * 0.5]); }
     const labs = LABELS.map(([txt, x, y, w, h, t0]) => { const el = html('div', { class: 'el', text: txt, dir: 'rtl' }, stage); Object.assign(el.style, { left: x + 'px', top: y + 'px', width: w + 'px', height: h + 'px', lineHeight: h + 'px', textAlign: 'center', font: '700 25px "Aref Ruqaa",Amiri,serif', color: '#1c130a' }); return { el, t0 }; });
-    const vs = VERSES.map(([txt, right, y, t0, dur]) => { const el = html('div', { class: 'verse', text: txt }, stage); el.style.right = W - right + 'px'; el.style.top = y + 'px'; return { el, t0, dur }; });
+    const vs = VERSES.map(([txt, right, y, t0, dur]) => { const el = html('div', { class: 'verse', text: txt }, stage); el.style.right = W - right + 'px'; el.style.top = y + 'px'; if (txt.length > 50) el.style.fontSize = '31px'; return { el, t0, dur }; });
 
     return {
       render(t) {
