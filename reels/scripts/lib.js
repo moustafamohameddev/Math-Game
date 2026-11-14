@@ -6,7 +6,7 @@ const fs = require('fs');
 const { spawn, spawnSync } = require('child_process');
 const { serve, ROOT } = require('../server');
 
-const SCENES = ['alhamdulillah', 'sabr', 'yudabbir', 'istighfar', 'qatra'];
+const SCENES = ['alhamdulillah', 'sabr', 'yudabbir', 'istighfar', 'qatra', 'quraysh'];
 
 function args(argv = process.argv.slice(2)) {
   const out = { _: [] };
