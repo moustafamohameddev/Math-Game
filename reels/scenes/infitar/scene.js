@@ -82,7 +82,7 @@
     g.strokeStyle = 'rgba(90,80,60,.35)'; g.lineWidth = 1; for (let i = 0; i < 260; i++) { const x = r() * W, y = r() * H, a = r() * 6.28, l = 2 + r() * 9; g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + Math.cos(a) * l, y + Math.sin(a + 1) * l, x + Math.cos(a) * l * 2, y + Math.sin(a) * l * 2); g.stroke(); }
 
     const bas = html('div', { class: 'basmala', text: 'سُورَةُ ٱلِٱنفِطَارِ' }, stage);
-    const hd = html('div', { class: 'handle', text: '@' + HANDLE }, stage);
+    const hd = html('div', { class: 'handle', text: '' }, stage); // no handle: published without a logo
     const els = ITEMS.map(([id, x, y, t0, dur, kind, idle], i) => { const el = html('div', { class: 'el', html: ART[id] }, stage); el.style.left = x + 'px'; el.style.top = y + 'px'; return { el, t0, dur, kind, idle, ph: i * 1.7 }; });
     const vs = VERSES.map(([txt, right, y, px, ts]) => { const el = html('div', { class: 'verse', text: txt }, stage); el.style.right = W - right + 'px'; el.style.top = y + 'px'; el.style.fontSize = px + 'px'; return { el, ts }; });
 
